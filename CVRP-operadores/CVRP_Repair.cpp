@@ -1,14 +1,13 @@
-﻿#include "CVRP_Repair.h"   // Cabecera de la clase actual (asumida)
-#include <problems/CVRP.h> // Cabecera de la definición del problema (asumida)
+﻿#include "CVRP_Repair.h"    
+#include <problems/CVRP.h>  
 
 #include <algorithm>
 #include <vector>
 #include <set>
 #include <iostream>
 #include <limits> // Necesario para std::numeric_limits
+ 
 
-// --- FUNCIÓN AUXILIAR PARA CALCULAR LA CARGA DE UNA RUTA ---
-// Es útil tenerla separada para claridad.
 int calcularCarga(const std::vector<int>& ruta, CVRP* problema) {
     int carga = 0;
     for (int nodo : ruta) {
@@ -34,9 +33,7 @@ int calcularDistanciaRuta(const std::vector<int>& ruta, CVRP* problema) {
     }
     return distanciaTotal;
 }
-
-// --- FUNCIÓN PARA SEPARAR LA SOLUCIÓN EN RUTAS INDIVIDUALES ---
-// Cada ruta se representa como un vector que empieza y termina en el depósito (0).
+ 
 std::vector<std::vector<int>> separarSolucionPorRutas(Solution* s) {
     std::vector<std::vector<int>> rutas;
     if (s->getNumVariables() == 0) return rutas;
@@ -49,7 +46,7 @@ std::vector<std::vector<int>> separarSolucionPorRutas(Solution* s) {
     for (int i = 0; i < s->getNumVariables(); ++i) {
         int nodo = vars[i].L;
 
-        if (nodo == -1) { // Fin de la secuencia de variables.
+        if (nodo == -1) { // Fin de todas las rutas.
             break;
         }
 
@@ -75,9 +72,7 @@ std::vector<std::vector<int>> separarSolucionPorRutas(Solution* s) {
     return rutas;
 }
 
-
-// --- FUNCIÓN PRINCIPAL DE REPARACIÓN ---
-// Acepta la solución POR REFERENCIA (&) para que los cambios persistan.
+ 
 void repararSolucion(Solution& sol) {
     CVRP* problema = dynamic_cast<CVRP*>(sol.getProblem());
     if (!problema) return;
@@ -133,7 +128,7 @@ void repararSolucion(Solution& sol) {
     }
 
     // --- PASO 3: Reubicar clientes (faltantes + extraídos) ---
-    // Se combinan ambas listas de clientes pendientes.
+ 
     std::vector<int> todosLosClientesPendientes = clientesFaltantes;
     todosLosClientesPendientes.insert(todosLosClientesPendientes.end(), clientesParaReubicar.begin(), clientesParaReubicar.end());
 
@@ -153,8 +148,7 @@ void repararSolucion(Solution& sol) {
             for (size_t pos = 1; pos < rutas[k].size(); ++pos) {
                 int nodoPrevio = rutas[k][pos - 1];
                 int nodoSiguiente = rutas[k][pos];
-
-                // ✔️ CÁLCULO DE COSTE EFICIENTE (DELTA)
+ 
                 double costeOriginal = problema->getCost_Matrix()[nodoPrevio][nodoSiguiente];
                 double costeNuevo = problema->getCost_Matrix()[nodoPrevio][cliente] + problema->getCost_Matrix()[cliente][nodoSiguiente];
                 double costeDelta = costeNuevo - costeOriginal;
@@ -176,9 +170,7 @@ void repararSolucion(Solution& sol) {
             if (rutas.size() < (size_t)maxVehiculos && problema->getCustomerDemand()[cliente] <= problema->getMaxCapacity()) {
                 rutas.push_back({ 0, cliente, 0 }); // Crear nueva ruta {depósito, cliente, depósito}.
             }
-            // Opcional: si no se pueden crear más rutas, se podría forzar la inserción
-            // en la ruta "menos mala", aunque esto podría violar la capacidad.
-            // Por ahora, si no cabe, el cliente podría quedar sin asignar (solución infactible).
+ .
         }
     }
 
@@ -192,8 +184,7 @@ void repararSolucion(Solution& sol) {
         }
     }
 
-    // Si la última ruta válida no termina en 0, la lógica anterior podría fallar.
-    // Una reconstrucción más segura:
+  
     std::vector<int> solucionFinal;
     for (const auto& ruta : rutas) {
         if (ruta.size() > 2) {
@@ -216,15 +207,14 @@ void repararSolucion(Solution& sol) {
 }
 
 
-// --- Métodos de la clase CVRP_Repair ---
-
-// El método execute AHORA USA UNA REFERENCIA para poder modificar la solución original.
+ 
+ 
 void CVRP_Repair::execute(Solution sol) {
     sol.getProblem()->evaluate(&sol);
     sol.getProblem()->evaluateConstraints(&sol);
 
     if (sol.getNumberOfViolatedConstraints() > 0) {
-        repararSolucion(sol); // Llama a la función de reparación.
+        repararSolucion(sol); 
 
         // Re-evaluar la solución después de la reparación.
         sol.getProblem()->evaluate(&sol);

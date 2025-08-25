@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <vector>
 
-// NOTA: "miCEVRP.h" podría ya no ser necesario si no se usa para nada más.
-// #include "miCEVRP.h" 
+ 
 
 void OxCrossover::initialize(Requirements* config) {
     this->local_ini = false;
@@ -23,7 +22,7 @@ void OxCrossover::execute(SolutionSet parents, SolutionSet children) {
     clientesPadre1.reserve(n);
     clientesPadre2.reserve(n);
 
-    // Suponemos que el ID máximo posible no es absurdamente grande
+   
     int max_node_id = 0;
     //mayor a CERO debido a que aqui 0 es el depsotio y -1 el final de todas las rutas
     for (int i = 0; i < n; ++i) {
