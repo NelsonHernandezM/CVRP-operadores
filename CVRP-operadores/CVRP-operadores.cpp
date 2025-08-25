@@ -56,11 +56,11 @@ int main()
         auto start = std::chrono::high_resolution_clock::now(); // Inicio del tiempo
 
         cout << i << endl;
-      /*  ImprovementBuilder::add("CVRP_Repair", new CVRP_Repair());*/
+      /*  ImprovementBuilder::add("", new ());*/
         CrossoverBuilder::add("OxCrossover", new OxCrossover());
         MutationBuilder::add("SwapMutation", new SwapMutation());
         AlgorithmBuilder::add("miGenetico", new miGenetico());
-      /*  RepairBuilder::add("CVRP_Repair", new CVRP_Repair());*/
+        RepairBuilder::add("CVRP_Repair", new CVRP_Repair());
         Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
 
         alg->execute();

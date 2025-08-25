@@ -37,7 +37,7 @@ void miGenetico::initialize(Requirements* req) {
 	this->co = (CrossoverOperator*)CrossoverBuilder::execute(req);
 	this->so = (SelectionOperator*)SelectionBuilder::execute(req);
 	//this->improvement = (ImprovementOperator*)ImprovementBuilder::execute(req);
-	//this->reparacion = (RepairOperator*)RepairBuilder::execute(req);
+	this->reparacion = (RepairOperator*)RepairBuilder::execute(req);
 
 	pob = new SolutionSet((2 * N), this->problem_);
 
@@ -143,8 +143,8 @@ void miGenetico::execute() {
 
 
 			////// Reparación
-			//this->reparacion->execute(children.get(0));
-			//this->reparacion->execute(children.get(1));
+			this->reparacion->execute(children.get(0));
+			this->reparacion->execute(children.get(1));
 
 			// Evaluación
 			this->problem_->evaluate(children.getptr(0));

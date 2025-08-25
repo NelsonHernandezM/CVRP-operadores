@@ -2,8 +2,8 @@
 #Algorithm miGenetico
 
 //parámetros
-#MAX_GENERATIONS 100
-#N 10
+#MAX_GENERATIONS 1000
+#N 100
  
 
 #Problem-Instance _INPUT-CVRP/instancia_simple_CVRP.txt

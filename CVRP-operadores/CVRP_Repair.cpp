@@ -72,8 +72,7 @@ std::vector<std::vector<int>> separarSolucionPorRutas(Solution* s) {
     return rutas;
 }
 
- 
-void repararSolucion(Solution& sol) {
+void repararSolucion(Solution sol) {
     CVRP* problema = dynamic_cast<CVRP*>(sol.getProblem());
     if (!problema) return;
 
@@ -100,114 +99,104 @@ void repararSolucion(Solution& sol) {
     }
 
     // --- PASO 2: Reparar rutas con exceso de capacidad ---
-    // Los clientes eliminados se añaden a una lista para ser reubicados.
     std::vector<int> clientesParaReubicar;
     for (auto& ruta : rutas) {
-        while (calcularCarga(ruta, problema) > problema->getMaxCapacity()) {
-            int clienteARemover = -1, posCliente = -1;
-            double maxDemanda = -1.0;
+        int cargaActual = calcularCarga(ruta, problema);
+        while (cargaActual > problema->getMaxCapacity()) {
+         //remover el primer cliente que se encuentre.
+            int clienteARemover = -1;
+            int posCliente = -1;
 
-            // Heurística: remover el cliente con mayor demanda para aliviar la carga rápidamente.
+            // Empezamos en 1 para no remover el depósito inicial. //YA QUE EN RUTAS SI SE EMPIEZA EN 0, EN SOLUTION SE EMPIEZA EN UN CLIENTE
             for (size_t j = 1; j < ruta.size() - 1; ++j) {
                 int nodo = ruta[j];
-                if (problema->isCustomer(nodo) && problema->getCustomerDemand()[nodo] > maxDemanda) {
-                    maxDemanda = problema->getCustomerDemand()[nodo];
+                if (problema->isCustomer(nodo)) {
                     clienteARemover = nodo;
                     posCliente = j;
+                    break; // Encontramos un cliente, salimos para removerlo.
                 }
             }
 
             if (clienteARemover != -1) {
                 ruta.erase(ruta.begin() + posCliente);
                 clientesParaReubicar.push_back(clienteARemover);
+                // Recalculamos la carga para la siguiente iteración del while.
+                cargaActual = calcularCarga(ruta, problema);
             }
             else {
-                break; // No hay más clientes que remover, salir del bucle.
+                
+                break;
             }
         }
     }
 
-    // --- PASO 3: Reubicar clientes (faltantes + extraídos) ---
- 
+    // --- PASO 3: Reubicar clientes (faltantes + extraídos) con lógica de "Primer Ajuste" ---
     std::vector<int> todosLosClientesPendientes = clientesFaltantes;
     todosLosClientesPendientes.insert(todosLosClientesPendientes.end(), clientesParaReubicar.begin(), clientesParaReubicar.end());
 
     for (int cliente : todosLosClientesPendientes) {
-        double minCosteDelta = std::numeric_limits<double>::max();
-        int mejorRutaIdx = -1;
-        int mejorPosicion = -1;
+        bool clienteReubicado = false;
 
-        // Iterar sobre todas las rutas existentes para encontrar la mejor inserción.
+        // 1. Intentar insertar en la primera ruta existente donde quepa.
         for (size_t k = 0; k < rutas.size(); ++k) {
-            // Comprobación rápida de capacidad: si no cabe, no analizar inserciones.
-            if (calcularCarga(rutas[k], problema) + problema->getCustomerDemand()[cliente] > problema->getMaxCapacity()) {
-                continue;
-            }
-
-            // Evaluar el coste de insertar en cada posición posible de la ruta.
-            for (size_t pos = 1; pos < rutas[k].size(); ++pos) {
-                int nodoPrevio = rutas[k][pos - 1];
-                int nodoSiguiente = rutas[k][pos];
- 
-                double costeOriginal = problema->getCost_Matrix()[nodoPrevio][nodoSiguiente];
-                double costeNuevo = problema->getCost_Matrix()[nodoPrevio][cliente] + problema->getCost_Matrix()[cliente][nodoSiguiente];
-                double costeDelta = costeNuevo - costeOriginal;
-
-                if (costeDelta < minCosteDelta) {
-                    minCosteDelta = costeDelta;
-                    mejorRutaIdx = k;
-                    mejorPosicion = pos;
-                }
+            int cargaActualRuta = calcularCarga(rutas[k], problema);
+            if (cargaActualRuta + problema->getCustomerDemand()[cliente] <= problema->getMaxCapacity()) {
+                // Hay espacio. Insertamos el cliente al final de la ruta (antes del último depósito).
+                rutas[k].insert(rutas[k].end() - 1, cliente);
+                clienteReubicado = true;
+                break; // Cliente reubicado, pasamos al siguiente cliente pendiente.
             }
         }
 
-        if (mejorRutaIdx != -1) {
-            // Se encontró un lugar válido, insertar el cliente.
-            rutas[mejorRutaIdx].insert(rutas[mejorRutaIdx].begin() + mejorPosicion, cliente);
-        }
-        else {
-            // No se pudo insertar en ninguna ruta existente. Intentar crear una nueva ruta.
+        // 2. Si no cupo en ninguna ruta, intentar crear una nueva.
+        if (!clienteReubicado) {
             if (rutas.size() < (size_t)maxVehiculos && problema->getCustomerDemand()[cliente] <= problema->getMaxCapacity()) {
                 rutas.push_back({ 0, cliente, 0 }); // Crear nueva ruta {depósito, cliente, depósito}.
             }
- .
+            // Nota: Si el cliente no cabe aquí, se quedará sin asignar,
+            // pero la solución resultante será (potencialmente) factible con los clientes que sí se pudieron asignar.
         }
     }
 
-    // --- PASO 4: Reconstruir la solución a partir de las rutas reparadas ---
-    std::vector<int> nuevaSolucion;
-    for (const auto& ruta : rutas) {
-        // Solo añadir rutas válidas (con al menos un cliente).
-        if (ruta.size() > 2) {
-            // Añadir los nodos de la ruta, desde el primer cliente hasta el 0 final.
-            nuevaSolucion.insert(nuevaSolucion.end(), ruta.begin() + 1, ruta.end());
-        }
-    }
-
-  
+    // --- PASO 4: Reconstruir la solución a partir de las rutas reparadas (simplificado) ---
     std::vector<int> solucionFinal;
     for (const auto& ruta : rutas) {
-        if (ruta.size() > 2) {
-            // Añade [cliente1, cliente2, ..., 0]
+        // Solo añadir rutas que efectivamente visitan al menos un cliente.
+        if (ruta.size() > 2) { 
+            // Añade los nodos de la ruta, desde el primer cliente hasta el 0 final.
+            // Ejemplo: de {0, 5, 8, 0} -> añade {5, 8, 0}
             solucionFinal.insert(solucionFinal.end(), ruta.begin() + 1, ruta.end());
         }
     }
 
-
     // Actualizar el objeto 'sol' directamente con la nueva secuencia de variables.
     int n = sol.getNumVariables();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n-1; ++i) {
         if (i < (int)solucionFinal.size()) {
             sol.setVariableValue(i, solucionFinal[i]);
         }
         else {
-            sol.setVariableValue(i, -1); // Marcar el resto como no utilizado.
+            sol.setVariableValue(i, -1); // Marcar el resto de variables como no utilizadas.
         }
+    
     }
-}
-
-
+    sol.setVariableValue(sol.getNumVariables(), -1);
  
+}
+void imprimirSolucionC(Solution sol) {
+
+    for (int j = 0; j < sol.getNumVariables(); j++)
+    {
+        cout << sol.getVariableValue(j);
+        if (j < sol.getNumVariables() - 1) {
+            cout << ", ";
+        }
+
+    }
+    cout << " " << endl;
+
+
+}
  
 void CVRP_Repair::execute(Solution sol) {
     sol.getProblem()->evaluate(&sol);
@@ -215,12 +204,14 @@ void CVRP_Repair::execute(Solution sol) {
 
     if (sol.getNumberOfViolatedConstraints() > 0) {
         repararSolucion(sol); 
-
+     /*   cout << "imprimir" << endl;*/
+       /*imprimirSolucionC(sol);*/
         // Re-evaluar la solución después de la reparación.
         sol.getProblem()->evaluate(&sol);
         sol.getProblem()->evaluateConstraints(&sol);
     }
 }
+
 
 void CVRP_Repair::initialize(Requirements* config) {
     this->param = *(config->load());
