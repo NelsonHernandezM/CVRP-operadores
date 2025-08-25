@@ -60,7 +60,7 @@ int main()
         CrossoverBuilder::add("OxCrossover", new OxCrossover());
         MutationBuilder::add("SwapMutation", new SwapMutation());
         AlgorithmBuilder::add("miGenetico", new miGenetico());
-        RepairBuilder::add("CVRP_Repair", new CVRP_Repair());
+      /*  RepairBuilder::add("CVRP_Repair", new CVRP_Repair());*/
         Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
 
         alg->execute();
