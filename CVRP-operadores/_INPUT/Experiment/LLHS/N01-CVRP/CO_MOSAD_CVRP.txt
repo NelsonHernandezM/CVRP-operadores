@@ -1,0 +1,25 @@
+=======================================================================================
+#Algorithm H_CO_MOSAD_PSP
+
+#maxEvaluations 100100
+#N 100
+#NSpecies 2
+#SpecieEvaluations 1000
+#PopulationBySpecie 10
+#Ti 1
+#Tf 0.0000001
+#L 2
+#alpha 0.98
+
+#Problem-Instance _INPUT/CVRP/N01-I01-CVRP_Simple.txt
+
+#WeightVectorModel CAModel
+#CAModel-NumberOfVectors 100
+#CAModel-NumberOfObjectives 02
+#DEmutation COERandOneDEMutation
+#COERandOneDEMutation-scaleFactor 0.5
+#crossover COEBinomialCrossover
+#COEBinomialCrossover-crossoverRate 0.2
+
+#NUM-INITIAL-SOLS 0
+=======================================================================================

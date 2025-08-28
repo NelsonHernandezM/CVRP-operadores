@@ -1,0 +1,34 @@
+=======================================================================================
+#Algorithm H_MOSAD_O_PSP
+
+#maxEvaluations 100100
+#N 100
+#Ti 1
+#Tf 0.0000001
+#L 2
+#alpha 0.98
+
+#Problem-Instance _INPUT/CVRP/N01-I01-CVRP_Simple.txt
+
+#WeightVectorModel CAModel
+#CAModel-NumberOfVectors 100
+#CAModel-NumberOfObjectives 2
+#DEmutation RandOneDEMutation
+#RandOneDEMutation-scaleFactor 0.5
+#crossover BinomialCrossover
+#BinomialCrossover-crossoverRate 0.2
+#BinomialCrossover-dimensionOfDifference 5
+#repair PDTLZ_Repair
+
+#outranking-model FDEA_Outranking
+#NUM-OBJS 02
+#DM-ID DM01
+#WEIGHTS 
+ 0.20 0.30 0.70 0.80
+#VETOES 
+ 10000 10000  10000 10000
+
+#ALPHA 0.66 0.66
+
+#NUM-INITIAL-SOLS 0
+=======================================================================================

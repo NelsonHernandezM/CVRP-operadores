@@ -31,6 +31,7 @@ using namespace std;
  
 #include "OxCrossover.h"
 #include "CVRP_Repair.h"
+#include "LocalSearch.h"
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -38,49 +39,63 @@ using namespace std;
 using namespace std;
 #include <cstdlib>  // rand, srand
 
-
+#include <fstream>
+#include <tools/Builders/HyperheuristicBuilder.h>
 
 
 int main()
 {
-    std::mt19937 rng(310);  // Semilla fija
-    srand(310);  // Semilla fija
-    RandomNumber* rnd = RandomNumber::getInstance();
-    rnd->setSeed(310);
+    //std::mt19937 rng(310);  // Semilla fija
+    //srand(310);  // Semilla fija
+    //RandomNumber* rnd = RandomNumber::getInstance();
+    //rnd->setSeed(310);
 
 
-    for (int i = 0; i < 1; i++)
-    {
+    //for (int i = 0; i < 1; i++)
+    //{
 
 
-        auto start = std::chrono::high_resolution_clock::now(); // Inicio del tiempo
+    //    auto start = std::chrono::high_resolution_clock::now(); // Inicio del tiempo
 
-        cout << i << endl;
-      /*  ImprovementBuilder::add("", new ());*/
+    //    cout << i << endl;
+        ImprovementBuilder::add("LocalSearch", new LocalSearch());
         CrossoverBuilder::add("OxCrossover", new OxCrossover());
         MutationBuilder::add("SwapMutation", new SwapMutation());
         AlgorithmBuilder::add("miGenetico", new miGenetico());
         RepairBuilder::add("CVRP_Repair", new CVRP_Repair());
-        Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
+        //Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
 
-        alg->execute();
-        ofstream out("Salida-CVRP.txt");
-        SolutionSet res = alg->getSolutionSet();
+    //    alg->execute();
+    //    std::string nombreArchivo = "Salida-CVRP" + std::to_string(i) + ".txt";
+    //    ofstream out(nombreArchivo);
+    //    SolutionSet res = alg->getSolutionSet();
 
-        out << res;
-        out.close();
+    //    out << res;
+    //    out.close();
 
-        cout << *alg->getLastB() << endl;
-        cout << alg->getSolutionSet() << endl;
+    //    cout << *alg->getLastB() << endl;
+    //    cout << alg->getSolutionSet() << endl;
 
-        // Liberar memoria manualmente
-       /* delete alg;*/
+    //    // Liberar memoria manualmente
+    //   /* delete alg;*/
 
 
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duration = end - start;
-        std::cout << "Iteración " << i << " tiempo: " << duration.count() << " segundos" << std::endl;
-    }
+    //    auto end = std::chrono::high_resolution_clock::now();
+    //    std::chrono::duration<double> duration = end - start;
+    //    std::cout << "Iteración " << i << " tiempo: " << duration.count() << " segundos" << std::endl;
+    //}
+
+
+
+    Hyperheuristic* a = HyperheuristicBuilder::execute("HH_CVRP-N01-I01-CVRP_Simple.txt");
+    a->execute();
+
+    ofstream out("Salida-HH_CVRP.txt");
+    SolutionSet res = a->getSolutionSet();
+
+    out << res;
+    out.close();
+
 
 }
 

@@ -2,8 +2,8 @@
 #Algorithm miGenetico
 
 //parámetros
-#MAX_GENERATIONS 1000
-#N 100
+#MAX_GENERATIONS 100
+#N 50
  
 
 #Problem-Instance _INPUT-CVRP/instancia_simple_CVRP.txt
@@ -13,7 +13,8 @@
 #selection RandomSelection
 #crossover OxCrossover
 #repair CVRP_Repair 
-
+#improvement LocalSearch
+#Iteraciones-sin-mejora 2
 
 
 =====================================================================================================

@@ -30,6 +30,9 @@
     <ClCompile Include="CVRP_Repair.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="LocalSearch.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="miGenetico.h">
@@ -44,5 +47,16 @@
     <ClInclude Include="CVRP_Repair.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="LocalSearch.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="_INPUT-CVRP\config_GA.txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
+    <Text Include="_INPUT-CVRP\instancia_simple_CVRP.txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
   </ItemGroup>
 </Project>

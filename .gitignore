@@ -22,6 +22,8 @@ Doctor/
 DecisionAidFramework/NHM
 DecisionAidFramework/Debug
 DecisionAidFramework/Doctor
+# Ignorar carpetas comunes en todos los proyectos
+**/{NHM,Debug,Doctor}/
 
 
 # Windows Installer files

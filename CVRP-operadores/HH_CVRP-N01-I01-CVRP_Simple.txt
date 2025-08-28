@@ -1,0 +1,29 @@
+=======================================================================================
+#Hyperheuristic HH_CVRP
+#maxEvaluations 100100
+#N 100
+#alpha 1000
+#beta 6000
+
+#Problem-Instance _INPUT/CVRP/N01-I01-CVRP_Simple.txt
+
+#LLHSize 4
+#LLHSet
+_INPUT/EXPERIMENT/LLHS/N01-CVRP/CO_MOSAD_CVRP.txt
+_INPUT/EXPERIMENT/LLHS/N01-CVRP/MOSAD_DE_CVRP.txt
+_INPUT/EXPERIMENT/LLHS/N01-CVRP/MOSAD_O_CVRP.txt
+_INPUT/EXPERIMENT/LLHS/N01-CVRP/MOSAD_O_II_CVRP.txt
+
+#LLHSelectionOperator LLHIndicatorSelectionEuclTche_PSP
+#Measure EUCLIDEAN-AVG
+
+#outranking-model FDEA_Outranking
+#NUM-OBJS 02
+#DM-ID DM01
+#WEIGHTS 
+ 0.20 0.30 0.70 0.80
+#VETOES 
+ 10000 10000  10000 10000
+
+#ALPHA 0.66 0.66
+=======================================================================================
