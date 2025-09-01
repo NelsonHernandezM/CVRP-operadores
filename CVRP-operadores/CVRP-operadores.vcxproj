@@ -205,6 +205,7 @@
     <ClCompile Include="LocalSearch.cpp" />
     <ClCompile Include="miGenetico.cpp" />
     <ClCompile Include="OxCrossover.cpp" />
+    <ClCompile Include="ScrambleMutation.cpp" />
     <ClCompile Include="SwapMutation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +213,7 @@
     <ClInclude Include="LocalSearch.h" />
     <ClInclude Include="miGenetico.h" />
     <ClInclude Include="OxCrossover.h" />
+    <ClInclude Include="ScrambleMutation.h" />
     <ClInclude Include="SwapMutation.h" />
   </ItemGroup>
   <ItemGroup>

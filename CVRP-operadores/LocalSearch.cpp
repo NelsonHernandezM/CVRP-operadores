@@ -60,9 +60,8 @@ std::vector<std::vector<int>> decodificarRutas(Solution& sol, CVRP* problema) {
  * Esta función es el inverso de decodificarRutas.
  * @param sol Objeto Solution a modificar.
  * @param rutas La estructura de rutas optimizada.
- * @param indicesMutables Los índices originales de la solución que corresponden a los nodos de clientes.
  */
-void reconstruirSolucionDesdeRutas(Solution& sol, const std::vector<std::vector<int>>& rutas, const std::vector<int>& indicesMutables) {
+void reconstruirSolucionDesdeRutas(Solution& sol, const std::vector<std::vector<int>>& rutas) {
     std::vector<int> valores_planos;
     for (size_t i = 0; i < rutas.size(); ++i) {
         for (int nodo : rutas[i]) {
@@ -86,14 +85,14 @@ void reconstruirSolucionDesdeRutas(Solution& sol, const std::vector<std::vector<
 }
 
 
-// --- Funciones de Búsqueda Local con Evaluación Incremental (Best-Improvement) ---
+// --- Funciones de Búsqueda Local con Estrategia Configurable ---
 
 /**
- * @brief TAREA 1, 2 y 4: Explora la vecindad de intercambio (swap) usando best-improvement.
- * Calcula el delta de costo de forma incremental (O(1)) y verifica la factibilidad de capacidad.
+ * @brief Explora la vecindad de intercambio (swap) usando First o Best-Improvement.
+ * @param bestImprovement Si es 0, usa First Improvement. Si es 1, usa Best Improvement.
  * @return true si se encontró y aplicó una mejora, false en caso contrario.
  */
-bool explorarVecindadSwap(std::vector<std::vector<int>>& rutas, CVRP* problema, std::vector<double>& demandas_rutas) {
+bool explorarVecindadSwap(std::vector<std::vector<int>>& rutas, CVRP* problema, std::vector<double>& demandas_rutas, int bestImprovement) {
     Move mejor_movimiento;
     mejor_movimiento.delta_cost = 0;
     int** cost_matrix = problema->getCost_Matrix();
@@ -109,7 +108,7 @@ bool explorarVecindadSwap(std::vector<std::vector<int>>& rutas, CVRP* problema, 
                     int u = rutas[r1][i];
                     int v = rutas[r2][j];
 
-                    // TAREA 4: Comprobación de factibilidad incremental de capacidad
+                    // Comprobación de factibilidad incremental de capacidad
                     if (r1 != r2) {
                         double nueva_demanda_r1 = demandas_rutas[r1] - demands[u] + demands[v];
                         double nueva_demanda_r2 = demandas_rutas[r2] - demands[v] + demands[u];
@@ -118,11 +117,11 @@ bool explorarVecindadSwap(std::vector<std::vector<int>>& rutas, CVRP* problema, 
                         }
                     }
 
-                    // TAREA 1: Cálculo del delta de costo (O(1))
+                    // Cálculo del delta de costo (O(1))
                     double costo_actual = 0;
                     double costo_nuevo = 0;
 
-                    int pred_u = (i > 0) ? rutas[r1][i - 1] : 0; // 0 es el depot
+                    int pred_u = (i > 0) ? rutas[r1][i - 1] : 0;
                     int succ_u = (i < rutas[r1].size() - 1) ? rutas[r1][i + 1] : 0;
                     int pred_v = (j > 0) ? rutas[r2][j - 1] : 0;
                     int succ_v = (j < rutas[r2].size() - 1) ? rutas[r2][j + 1] : 0;
@@ -133,8 +132,7 @@ bool explorarVecindadSwap(std::vector<std::vector<int>>& rutas, CVRP* problema, 
                     if (r1 == r2) { // Swap dentro de la misma ruta
                         if (i + 1 == j) { // Nodos adyacentes
                             costo_nuevo = cost_matrix[pred_u][v] + cost_matrix[v][u] + cost_matrix[u][succ_v];
-                            // El arco (u,v) se convierte en (v,u). Restamos el original para no contarlo doble.
-                            costo_actual -= cost_matrix[u][v];
+                            costo_actual -= cost_matrix[u][v]; // Evitar doble conteo
                         }
                         else {
                             costo_nuevo = cost_matrix[pred_u][v] + cost_matrix[v][succ_u] + cost_matrix[pred_v][u] + cost_matrix[u][succ_v];
@@ -146,45 +144,58 @@ bool explorarVecindadSwap(std::vector<std::vector<int>>& rutas, CVRP* problema, 
 
                     double delta = costo_nuevo - costo_actual;
 
-                    if (delta < mejor_movimiento.delta_cost) {
-                        mejor_movimiento.delta_cost = delta;
-                        mejor_movimiento.type = 1;
-                        mejor_movimiento.pos1_route = r1;
-                        mejor_movimiento.pos1_idx = i;
-                        mejor_movimiento.pos2_route = r2;
-                        mejor_movimiento.pos2_idx = j;
+                    if (delta < -1e-9) { // Se encontró una mejora
+                        if (bestImprovement == 0) { // **First Improvement**: aplicar y salir
+                            if (r1 != r2) {
+                                demandas_rutas[r1] += demands[v] - demands[u];
+                                demandas_rutas[r2] += demands[u] - demands[v];
+                            }
+                            std::swap(rutas[r1][i], rutas[r2][j]);
+                            return true;
+                        }
+                        else { // **Best Improvement**: guardar si es la mejor hasta ahora
+                            if (delta < mejor_movimiento.delta_cost) {
+                                mejor_movimiento.delta_cost = delta;
+                                mejor_movimiento.type = 1;
+                                mejor_movimiento.pos1_route = r1;
+                                mejor_movimiento.pos1_idx = i;
+                                mejor_movimiento.pos2_route = r2;
+                                mejor_movimiento.pos2_idx = j;
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    // Aplicar el mejor movimiento encontrado (Best-Improvement)
-    if (mejor_movimiento.delta_cost < -1e-9) { // Comparar con una pequeña tolerancia para evitar errores de punto flotante
-        int r1 = mejor_movimiento.pos1_route;
-        int i = mejor_movimiento.pos1_idx;
-        int r2 = mejor_movimiento.pos2_route;
-        int j = mejor_movimiento.pos2_idx;
+    // **Best Improvement**: aplicar el mejor movimiento si se encontró uno
+    if (bestImprovement == 1 && mejor_movimiento.delta_cost < -1e-9) {
+        int r1_best = mejor_movimiento.pos1_route;
+        int i_best = mejor_movimiento.pos1_idx;
+        int r2_best = mejor_movimiento.pos2_route;
+        int j_best = mejor_movimiento.pos2_idx;
 
-        if (r1 != r2) {
-            int nodo_u = rutas[r1][i];
-            int nodo_v = rutas[r2][j];
-            demandas_rutas[r1] += demands[nodo_v] - demands[nodo_u];
-            demandas_rutas[r2] += demands[nodo_u] - demands[nodo_v];
+        if (r1_best != r2_best) {
+            int nodo_u = rutas[r1_best][i_best];
+            int nodo_v = rutas[r2_best][j_best];
+            demandas_rutas[r1_best] += demands[nodo_v] - demands[nodo_u];
+            demandas_rutas[r2_best] += demands[nodo_u] - demands[nodo_v];
         }
 
-        std::swap(rutas[r1][i], rutas[r2][j]);
+        std::swap(rutas[r1_best][i_best], rutas[r2_best][j_best]);
         return true;
     }
-    return false;
+
+    return false; // No se encontró ninguna mejora
 }
 
 /**
- * @brief TAREA 2: Implementación de 2-Opt (intra-ruta) con best-improvement.
- * Revisa todas las posibles inversiones de sub-segmentos dentro de cada ruta.
+ * @brief Implementación de 2-Opt (intra-ruta) con First o Best-Improvement.
+ * @param bestImprovement Si es 0, usa First Improvement. Si es 1, usa Best Improvement.
  * @return true si se encontró y aplicó una mejora, false en caso contrario.
  */
-bool explorarVecindad2Opt(std::vector<std::vector<int>>& rutas, CVRP* problema) {
+bool explorarVecindad2Opt(std::vector<std::vector<int>>& rutas, CVRP* problema, int bestImprovement) {
     Move mejor_movimiento;
     mejor_movimiento.delta_cost = 0;
     int** cost_matrix = problema->getCost_Matrix();
@@ -193,33 +204,46 @@ bool explorarVecindad2Opt(std::vector<std::vector<int>>& rutas, CVRP* problema) 
         if (rutas[r].size() < 2) continue;
         for (size_t i = 0; i < rutas[r].size() - 1; ++i) {
             for (size_t j = i + 1; j < rutas[r].size(); ++j) {
+                // Se rompen los arcos (v1, u1) y (u2, v2)
                 int u1 = rutas[r][i];
-                int v1 = (i > 0) ? rutas[r][i - 1] : 0; // 0 es el depot
+                int v1 = (i > 0) ? rutas[r][i - 1] : 0;
                 int u2 = rutas[r][j];
                 int v2 = (j < rutas[r].size() - 1) ? rutas[r][j + 1] : 0;
 
                 double costo_actual = cost_matrix[v1][u1] + cost_matrix[u2][v2];
+                // Se forman los nuevos arcos (v1, u2) y (u1, v2)
                 double costo_nuevo = cost_matrix[v1][u2] + cost_matrix[u1][v2];
+                double delta = costo_nuevo - costo_actual;
 
-                if (costo_nuevo - costo_actual < mejor_movimiento.delta_cost) {
-                    mejor_movimiento.delta_cost = costo_nuevo - costo_actual;
-                    mejor_movimiento.type = 2;
-                    mejor_movimiento.pos1_route = r;
-                    mejor_movimiento.pos1_idx = i;
-                    mejor_movimiento.pos2_idx = j;
+                if (delta < -1e-9) { // Se encontró una mejora
+                    if (bestImprovement == 0) { // **First Improvement**: aplicar y salir
+                        std::reverse(rutas[r].begin() + i, rutas[r].begin() + j + 1);
+                        return true;
+                    }
+                    else { // **Best Improvement**: guardar si es la mejor
+                        if (delta < mejor_movimiento.delta_cost) {
+                            mejor_movimiento.delta_cost = delta;
+                            mejor_movimiento.type = 2;
+                            mejor_movimiento.pos1_route = r;
+                            mejor_movimiento.pos1_idx = i;
+                            mejor_movimiento.pos2_idx = j;
+                        }
+                    }
                 }
             }
         }
     }
 
-    if (mejor_movimiento.delta_cost < -1e-9) {
-        int r = mejor_movimiento.pos1_route;
-        int i = mejor_movimiento.pos1_idx;
-        int j = mejor_movimiento.pos2_idx;
-        std::reverse(rutas[r].begin() + i, rutas[r].begin() + j + 1);
+    // **Best Improvement**: aplicar la mejor inversión si se encontró
+    if (bestImprovement == 1 && mejor_movimiento.delta_cost < -1e-9) {
+        int r_best = mejor_movimiento.pos1_route;
+        int i_best = mejor_movimiento.pos1_idx;
+        int j_best = mejor_movimiento.pos2_idx;
+        std::reverse(rutas[r_best].begin() + i_best, rutas[r_best].begin() + j_best + 1);
         return true;
     }
-    return false;
+
+    return false; // No se encontró ninguna mejora
 }
 
 
@@ -227,7 +251,7 @@ bool explorarVecindad2Opt(std::vector<std::vector<int>>& rutas, CVRP* problema) 
  * @brief Búsqueda Local principal usando una estructura VND (Variable Neighborhood Descent).
  * Aplica secuencialmente diferentes tipos de movimientos hasta que no se pueda encontrar más mejora.
  */
-void busquedaLocalVND(Solution& sol, CVRP* problema) {
+void busquedaLocalVND(Solution& sol, CVRP* problema, int bestImprovement) {
     auto rutas = decodificarRutas(sol, problema);
     int* demands = problema->getCustomerDemand();
 
@@ -242,32 +266,29 @@ void busquedaLocalVND(Solution& sol, CVRP* problema) {
     while (mejora_encontrada) {
         mejora_encontrada = false;
 
-        if (explorarVecindadSwap(rutas, problema, demandas_rutas)) {
-            mejora_encontrada = true;
-            continue; // Si mejora, vuelve a la primera vecindad (estrategia first-improvement entre vecindades)
-        }
-        if (explorarVecindad2Opt(rutas, problema)) {
+        if (explorarVecindadSwap(rutas, problema, demandas_rutas, bestImprovement)) {
             mejora_encontrada = true;
             continue;
         }
-        // Aquí podrías añadir más vecindades, como Relocate.
+        if (explorarVecindad2Opt(rutas, problema, bestImprovement)) {
+            mejora_encontrada = true;
+            continue;
+        }
     }
 
     // Reconstruir la solución final, evaluar y actualizar
-    reconstruirSolucionDesdeRutas(sol, rutas, {}); // No se necesita indicesMutables aquí
+    reconstruirSolucionDesdeRutas(sol, rutas);
     problema->evaluate(&sol);
     problema->evaluateConstraints(&sol);
 }
 
 /**
  * @brief Perturba la solución para escapar de óptimos locales.
- * Realiza varios intercambios de nodos entre rutas aleatorias.
  */
 void perturbarSolucion(std::vector<std::vector<int>>& rutas, int num_clientes_total) {
     if (rutas.empty() || num_clientes_total < 4) return;
     RandomNumber* rnd = RandomNumber::getInstance();
 
-    // La "fuerza" de la perturbación es proporcional al tamaño del problema
     int num_perturbaciones = std::max(2, static_cast<int>(num_clientes_total * 0.15));
 
     for (int k = 0; k < num_perturbaciones; ++k) {
@@ -290,60 +311,54 @@ LocalSearch::LocalSearch() {}
 
 void LocalSearch::initialize(Requirements* config) {
     config->addValue("#Iteraciones-sin-mejora", Constantes::INT);
+    // **Añadido parámetro para elegir la estrategia**
+    // 0 = First Improvement, 1 = Best Improvement
+    config->addValue("#BestImprovement", Constantes::INT);
     this->param = *config->load();
 }
 
 /**
- * @brief TAREA 3: Método principal que ejecuta la Búsqueda Local Iterada (ILS).
- * Incorpora un criterio de parada adaptativo.
+ * @brief Método principal que ejecuta la Búsqueda Local Iterada (ILS).
  */
 void LocalSearch::execute(Solution y) {
     const int MAX_ITER_SIN_MEJORA = this->param.get("#Iteraciones-sin-mejora").getInt();
+    const int BEST_IMPROVEMENT = this->param.get("#BestImprovement").getInt();
     CVRP* problema = dynamic_cast<CVRP*>(y.getProblem());
     const bool maximization = y.getProblem()->getObjectivesType()[0] == Constantes::MAXIMIZATION;
 
     // 1. Búsqueda Local Inicial para encontrar el primer óptimo local
-    busquedaLocalVND(y, problema);
+    busquedaLocalVND(y, problema, BEST_IMPROVEMENT);
 
-    // Guardamos la mejor solución encontrada hasta ahora
     Solution mejor_solucion = y;
 
-    // --- Bucle principal de ILS con Criterio de Parada Adaptativo ---
     int iteraciones_sin_mejora = 0;
     while (iteraciones_sin_mejora < MAX_ITER_SIN_MEJORA) {
-
-        // Copiamos la mejor solución actual para perturbarla
         Solution candidata = mejor_solucion;
         auto rutas_candidatas = decodificarRutas(candidata, problema);
 
-        // 2. Perturbación (el "kick" para salir del óptimo local)
+        // 2. Perturbación
         perturbarSolucion(rutas_candidatas, problema->getNumberCustomers());
-        reconstruirSolucionDesdeRutas(candidata, rutas_candidatas, {});
+        reconstruirSolucionDesdeRutas(candidata, rutas_candidatas);
 
         // 3. Búsqueda Local sobre la solución perturbada
-        busquedaLocalVND(candidata, problema);
+        busquedaLocalVND(candidata, problema, BEST_IMPROVEMENT);
 
-        // 4. Criterio de Aceptación: se acepta si es estrictamente mejor
+        // 4. Criterio de Aceptación
         bool es_mejor = false;
         if (candidata.getNumberOfViolatedConstraints() == 0) {
             Interval objetivo_candidato = candidata.getObjective(0);
             Interval objetivo_mejor = mejor_solucion.getObjective(0);
-
             es_mejor = (!maximization && objetivo_candidato < objetivo_mejor);
         }
 
         if (es_mejor) {
-            mejor_solucion = candidata; // Aceptar la nueva mejor solución
-            iteraciones_sin_mejora = 0; // Reiniciar contador
+            mejor_solucion = candidata;
+            iteraciones_sin_mejora = 0;
         }
         else {
-            iteraciones_sin_mejora++; // Incrementar contador
+            iteraciones_sin_mejora++;
         }
     }
 
-    // Al final, nos aseguramos de que el objeto 'y' que se recibió
-    // (posiblemente una copia) contenga la mejor solución encontrada.
-    // NOTA: Dependiendo de cómo se llame a execute(), este cambio podría
-    // no persistir fuera de la función si 'y' se pasa por valor.
     y = mejor_solucion;
 }
