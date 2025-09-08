@@ -22,116 +22,59 @@ void ScrambleMutation::initialize(Requirements* config) {
     mutationProbability_ = this->param.get("#ScrambleMutation-probability").getDouble();
 }
 
+
 void ScrambleMutation::execute(Solution y) {
+    RandomNumber* rnd = RandomNumber::getInstance();
 
-    RandomNumber* rnd = rnd->getInstance();
-
+    // 1. Aplicar la mutación solo si se cumple la probabilidad
     if (rnd->nextDouble() > mutationProbability_) {
-       
-    }else{
-
-    CVRP* problema = dynamic_cast<CVRP*>(y.getProblem());
-
-
-
-    Problem* base = y.getProblem();
-
-    int contadorFijos = 0;
-    for (int i = 0; i < y.getNumVariables(); i++) {
-        int value = y.getVariableValue(i).L;
-
-        if (value == -1 || value == 0) {
-            contadorFijos++;
-        }
-    }
-
-    // Crear arreglos para guardar posiciones y valores fijos
-    int* indicesFijos = new int[contadorFijos];
-    int* valoresFijos = new int[contadorFijos];
-    int k = 0;
-
-    // Llenar arreglos con elementos fijos
-    for (int i = 0; i < y.getNumVariables(); i++) {
-        int value = y.getVariableValue(i).L;
-        if (value == 0 || value == -1) {
-            indicesFijos[k] = i;
-            valoresFijos[k] = value;
-            k++;
-        }
-    }
-
-    // Crear arreglo solo con elementos mutables (clientes normales)
-    int numMutables = y.getNumVariables() - contadorFijos;
-    int* elementosMutables = new int[numMutables];
-    int j = 0;
-
-    // Llenar arreglo con valores mutables
-    for (int i = 0; i < y.getNumVariables(); i++) {
-        int value = y.getVariableValue(i).L;
-        if (value != 0 && value != -1) {
-            elementosMutables[j++] = value;
-        }
+        return; // Salir temprano si no hay mutación
     }
 
     
+    std::vector<int> clientes;
+    std::vector<int> indices_clientes;
+    clientes.reserve(y.getNumVariables());
+    indices_clientes.reserve(y.getNumVariables());
 
-    // a) Obtener dos puntos de corte distintos (pos1 < pos2) https://www.youtube.com/watch?v=lUTcgqbh-rc
-    int pos1 = rnd->nextInt(numMutables-1);
+    for (int i = 0; i < y.getNumVariables(); ++i) {
+        int value = y.getVariableValue(i).L;
+        if (value > 0) { // usar ISDEPOT //
+            clientes.push_back(value);
+            indices_clientes.push_back(i);
+        }
+    }
+
+    // Si no hay suficientes clientes para mutar, salir.
+    if (clientes.size() < 2) {
+        return;
+    }
+
+    // 3. Seleccionar el rango para la mutación
+    int numMutables = clientes.size();
+
+    // a) Obtener dos puntos de corte distintos
+    int pos1 = rnd->nextInt(numMutables - 1);
     int pos2;
     do {
-        pos2 = rnd->nextInt(numMutables-1);
+        pos2 = rnd->nextInt(numMutables - 1);
     } while (pos1 == pos2);
 
     if (pos1 > pos2) {
-        std::swap(pos1, pos2); // Aseguramos que pos1 sea el menor
+        std::swap(pos1, pos2);
     }
 
-    // b) Realizar varios intercambios aleatorios DENTRO de ese rango
-    // El ejemplo usa un bucle de 10 iteraciones. 
-    int numeroDeIntercambios = 10;
-    int tamanoRango = pos2 - pos1 + 1;
+    // b) Barajar el sub-rango [pos1, pos2] usando Fisher-Yates.
+    for (int i = pos2; i > pos1; --i) {
+        // Elige un índice aleatorio 'j' en la parte no barajada del rango [pos1, i]
+        int j = pos1 + rnd->nextInt(i - pos1);
 
-    for (int i = 0; i < numeroDeIntercambios; ++i) {
-        // Generar dos índices aleatorios DENTRO del rango [pos1, pos2]
-        // Para esto, generamos un número en [0, tamanoRango-1] y le sumamos pos1
-        int indiceEnRango1 = pos1 + rnd->nextInt(tamanoRango-1);
-        int indiceEnRango2 = pos1 + rnd->nextInt(tamanoRango-1);
-
-        // Intercambiar los elementos en esas posiciones
-        std::swap(elementosMutables[indiceEnRango1], elementosMutables[indiceEnRango2]);
+        // Intercambia el elemento actual con el elemento aleatorio
+        std::swap(clientes[i], clientes[j]);
     }
 
-
-
-
-
-
-
-    // Reconstruir solución con elementos fijos y mutables
-    j = 0; // Índice para elementos mutables
-    for (int i = 0; i < y.getNumVariables(); i++) {
-        bool esFijo = false;
-        // Verificar si es posición fija
-        for (int idx = 0; idx < contadorFijos; idx++) {
-            if (indicesFijos[idx] == i) {
-                y.setVariableValue(i, valoresFijos[idx]);
-                esFijo = true;
-                break;
-            }
-        }
-        // Si no es fijo, asignar valor mutable
-        if (!esFijo) {
-            y.setVariableValue(i, elementosMutables[j++]);
-        }
+    // 4. Reconstruir la solución con los clientes barajados// Cambiar logica para usar solo solution, y no vectores o nose
+    for (size_t i = 0; i < clientes.size(); ++i) {
+        y.setVariableValue(indices_clientes[i], clientes[i]);
     }
-
-
-     // Liberar memoria
-    delete[] indicesFijos;
-    delete[] valoresFijos;
-    delete[] elementosMutables;
-
-
-}
-
 }

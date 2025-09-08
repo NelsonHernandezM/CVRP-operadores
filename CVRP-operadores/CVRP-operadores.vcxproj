@@ -198,7 +198,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CVRP-operadores.cpp" />
-    <ClCompile Include="CVRP_Repair.cpp">
+    <ClCompile Include="miCVRP_Repair.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NHM|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -206,19 +206,20 @@
     <ClCompile Include="miGenetico.cpp" />
     <ClCompile Include="OxCrossover.cpp" />
     <ClCompile Include="ScrambleMutation.cpp" />
-    <ClCompile Include="SwapMutation.cpp" />
+    <ClCompile Include="miSwapMutation.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CVRP_Repair.h" />
+    <ClInclude Include="miCVRP_Repair.h" />
     <ClInclude Include="LocalSearch.h" />
     <ClInclude Include="miGenetico.h" />
     <ClInclude Include="OxCrossover.h" />
     <ClInclude Include="ScrambleMutation.h" />
-    <ClInclude Include="SwapMutation.h" />
+    <ClInclude Include="miSwapMutation.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_INPUT-CVRP\config_GA.txt" />
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP.txt" />
+    <Text Include="_INPUT-CVRP\instancia_simple_CVRP_2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

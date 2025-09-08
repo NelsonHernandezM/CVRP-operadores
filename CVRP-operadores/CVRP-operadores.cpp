@@ -18,7 +18,7 @@ using namespace std;
 
 #include "miGenetico.h"
 
-#include "SwapMutation.h"
+#include "miSwapMutation.h"
 #include "ScrambleMutation.h"
 
 
@@ -31,7 +31,7 @@ using namespace std;
 #include <tools/builders/RepairBuilder.h>
  
 #include "OxCrossover.h"
-#include "CVRP_Repair.h"
+#include "miCVRP_Repair.h"
 #include "LocalSearch.h"
 #include <chrono>
 #include <iostream>
@@ -46,10 +46,10 @@ using namespace std;
 
 int main()
 {
-    std::mt19937 rng(310);  // Semilla fija
-    srand(310);  // Semilla fija
-    RandomNumber* rnd = RandomNumber::getInstance();
-    rnd->setSeed(310);
+    //std::mt19937 rng(310);  // Semilla fija
+    //srand(310);  // Semilla fija
+    //RandomNumber* rnd = RandomNumber::getInstance();
+    //rnd->setSeed(310);
 
 
     for (int i = 0; i < 1; i++)
@@ -61,16 +61,16 @@ int main()
         cout << i << endl;
         ImprovementBuilder::add("LocalSearch", new LocalSearch());
         CrossoverBuilder::add("OxCrossover", new OxCrossover());
-        MutationBuilder::add("SwapMutation", new SwapMutation());
+        MutationBuilder::add("miSwapMutation", new miSwapMutation());
         MutationBuilder::add("ScrambleMutation", new ScrambleMutation());
 
 
         AlgorithmBuilder::add("miGenetico", new miGenetico());
-        RepairBuilder::add("CVRP_Repair", new CVRP_Repair());
+        RepairBuilder::add("miCVRP_Repair", new miCVRP_Repair());
         Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
 
         alg->execute();
-        std::string nombreArchivo = "Salida-CVRP22" + std::to_string(i) + ".txt";
+        std::string nombreArchivo = "Salida-CVRP .txt";
         ofstream out(nombreArchivo);
         SolutionSet res = alg->getSolutionSet();
 
@@ -86,7 +86,7 @@ int main()
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> duration = end - start;
-        std::cout << "Iteración " << i << " tiempo: " << duration.count() << " segundos" << std::endl;
+        std::cout << "Iteración " << i << " tiempo: " << duration.count() << " segundos" <<" minutos: " << duration.count()/60 << std::endl;
     }
 
 

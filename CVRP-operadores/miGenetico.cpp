@@ -28,7 +28,7 @@ void miGenetico::initialize(Requirements* req) {
 
 	this->MAX_GENERATIONS = this->param_.get("#MAX_GENERATIONS").getInt();
 	this->N = this->param_.get("#N").getInt();
-	//this->OPTIMO = this->param_.get("#OPTIMO").getInt();
+	/*this->OPTIMO = this->param_.get("#OPTIMO").getInt();*/
 
 
 	this->problem_ = ProblemBuilder::execute(this->param_.get("#Problem-Instance").getString());
@@ -92,7 +92,7 @@ void imprimirSolucion(Solution sol) {
 
 void miGenetico::execute() {
 	int generacionesSinMejora = 0;
-	int topeGeneracioneSnMejora = 100;
+	int topeSinMejora = 100;
 
 	int pobSize = 2 * this->N;
 	int generation = 0;
@@ -102,6 +102,8 @@ void miGenetico::execute() {
 	best = new SolutionSet(1, 1, this->problem_);
 	SolutionSet parents(2, 2, this->problem_);
 	SolutionSet children(2, 2, this->problem_);
+ ////
+	int best_fitness_anterior = 0;
 
 	// Generar población inicial
 	for (int i = 0; i < pobSize; i++) {
@@ -152,8 +154,18 @@ void miGenetico::execute() {
 			this->problem_->evaluate(children.getptr(1));
 			this->problem_->evaluateConstraints(children.getptr(1));
 
-			this->improvement->execute(children.get(0));
-			this->improvement->execute(children.get(1));
+			RandomNumber* rnd = RandomNumber::getInstance();
+
+			
+			if (rnd->nextDouble() < .30) {
+				// Si el número es menor a 30 (30% de probabilidad), aplica la mejora.
+				this->improvement->execute(children.get(0));
+				this->improvement->execute(children.get(1));
+
+			}
+			 
+
+
 
 			// Evaluación
 			this->problem_->evaluate(children.getptr(0));
@@ -169,11 +181,13 @@ void miGenetico::execute() {
 
 				if (maximization && children.get(h).getObjective(0) > best->get(0).getObjective(0) && children.get(h).getNumberOfViolatedConstraints() == 0) {
 					best->set(0, children.get(h));
+					  best_fitness_anterior = 0.0;
 				}
 				else if (!maximization && children.get(h).getObjective(0) < best->get(0).getObjective(0) && children.get(h).getNumberOfViolatedConstraints() == 0) {
 					best->set(0, children.get(h));
 					std::wstring m2 = L"MEJORSO: \n";
 					OutputDebugStringW(m2.c_str());
+					  best_fitness_anterior = 0.0;
 				}
 			}
 
@@ -198,9 +212,34 @@ void miGenetico::execute() {
 			}
 		}
 
+		// >>> 3. COMPRUEBA EL ESTANCAMIENTO AL FINAL DE LA GENERACIÓN <<<
+		if (best->get(0).getObjective(0).L == best_fitness_anterior) {
+			generacionesSinMejora++; // Si no cambió, incrementa el contador
+		}
+		else {
+			generacionesSinMejora = 0; // Si mejoró, reinicia el contador
+		}
+		// Si se alcanza el tope, rompe el bucle y termina.
+		if (generacionesSinMejora >= topeSinMejora) {
+			break;
+		}
+
+		/*cout << best->get(0).getObjective(0) << endl;*/
+
+	/*	if (best->get(0).getObjective(0).L == 784) {
+			cout << "Óptimo encontrado en generación " << generation << endl;
+			break;
+			}*/
+
 		++generation;
+
+ 
+
 	}
 
 	this->lastB_ = this->best;
 	this->last_ = *pob;
+
+	
+
 }

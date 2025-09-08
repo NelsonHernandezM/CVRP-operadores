@@ -1,4 +1,4 @@
-#include "SwapMutation.h"
+#include "miSwapMutation.h"
   
 
 #include "tools/RandomNumber.h"
@@ -12,14 +12,14 @@
 #include <problems/CVRP.h>
 
 
-void SwapMutation::initialize(Requirements* config) {
+void miSwapMutation::initialize(Requirements* config) {
     // Configura la probabilidad de mutación.
     config->addValue("#SwapMutation-probability", Constantes::DOUBLE);  // Probabilidad de mutación.
 
     this->param = *(config->load());  // Cargar parámetros de configuración.
 }
 
-void SwapMutation::execute(Solution y) {
+void miSwapMutation::execute(Solution y) {
 
     CVRP* problema = dynamic_cast<CVRP*>(y.getProblem());
    

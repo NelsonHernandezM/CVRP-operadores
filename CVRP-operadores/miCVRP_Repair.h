@@ -4,7 +4,7 @@
 #include "../WindowsRequirements.h"
 #include <problems/CVRP.h>
 
-class CVRP_Repair : public RepairOperator
+class miCVRP_Repair : public RepairOperator
 {
 
 

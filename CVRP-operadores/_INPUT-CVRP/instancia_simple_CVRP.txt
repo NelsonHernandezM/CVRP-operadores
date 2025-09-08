@@ -1,6 +1,6 @@
 ======================================================================
 #Problem CVRP
-#OPTIMAL 784
+#OPTIMO 784
 #VEHICLES 5
 #DIMENSION 32
 EDGE_WEIGHT_TYPE : EUC_2D

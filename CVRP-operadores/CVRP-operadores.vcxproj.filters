@@ -24,10 +24,10 @@
     <ClCompile Include="OxCrossover.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="SwapMutation.cpp">
+    <ClCompile Include="miSwapMutation.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="CVRP_Repair.cpp">
+    <ClCompile Include="miCVRP_Repair.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="LocalSearch.cpp">
@@ -44,10 +44,10 @@
     <ClInclude Include="OxCrossover.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="SwapMutation.h">
+    <ClInclude Include="miSwapMutation.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="CVRP_Repair.h">
+    <ClInclude Include="miCVRP_Repair.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="LocalSearch.h">
@@ -62,6 +62,9 @@
       <Filter>Archivos de recursos</Filter>
     </Text>
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP.txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
+    <Text Include="_INPUT-CVRP\instancia_simple_CVRP_2.txt">
       <Filter>Archivos de recursos</Filter>
     </Text>
   </ItemGroup>
