@@ -4,7 +4,7 @@
 
 #include "../WindowsRequirements.h"
 
-class ScrambleMutation : public MutationOperator {
+class miScrambleMutation : public MutationOperator {
  
 private:
     double mutationProbability_;    //Input [PolynomialMutation-probability] probability of mutating

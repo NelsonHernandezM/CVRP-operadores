@@ -6,6 +6,7 @@
 #include <set>
 #include <iostream>
 #include <limits> // Necesario para std::numeric_limits
+#include <chrono>
 
 // --- FUNCIONES AUXILIARES (sin cambios) ---
 int calcularCarga(const std::vector<int>& ruta, CVRP* problema) {
@@ -232,11 +233,33 @@ void miCVRP_Repair::execute(Solution sol) {
     sol.getProblem()->evaluateConstraints(&sol);
 
     if (sol.getNumberOfViolatedConstraints() > 0) {
+        //// Tomamos el tiempo de inicio
+        //auto start = std::chrono::high_resolution_clock::now();
+
         repararSolucion(sol);
         // Re-evaluar la solución después de la reparación.
         sol.getProblem()->evaluate(&sol);
         sol.getProblem()->evaluateConstraints(&sol);
+
+        //// Tomamos el tiempo de finalización
+        //auto end = std::chrono::high_resolution_clock::now();
+
+        //// --- Alternativa ---
+        //// Define una duración en segundos usando un tipo 'double'
+        //using floating_seconds = std::chrono::duration<double>;
+
+        //// Calcula la duración y conviértela directamente a segundos decimales
+        //double seconds = std::chrono::duration_cast<floating_seconds>(end - start).count();
+
+        ////// Imprimimos el resultado en segundos
+        ////std::cout << "--------------------------------------------------" << std::endl;
+        ////std::cout << "Tiempo de ejecución de repair: " << seconds << " s" << std::endl;
+        ////std::cout << "--------------------------------------------------" << std::endl;
+
     }
+
+
+
 }
 
 void miCVRP_Repair::initialize(Requirements* config) {

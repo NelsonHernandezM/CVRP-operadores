@@ -33,7 +33,7 @@
     <ClCompile Include="LocalSearch.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="ScrambleMutation.cpp">
+    <ClCompile Include="miScrambleMutation.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClInclude Include="LocalSearch.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="ScrambleMutation.h">
+    <ClInclude Include="miScrambleMutation.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,6 +65,9 @@
       <Filter>Archivos de recursos</Filter>
     </Text>
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP_2.txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
+    <Text Include="Salida-CVRP .txt">
       <Filter>Archivos de recursos</Filter>
     </Text>
   </ItemGroup>

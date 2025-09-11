@@ -130,6 +130,7 @@ void miGenetico::execute() {
 
 	// Bucle principal
 	while (generation < this->MAX_GENERATIONS) {
+		cout << generation<<"\r";
 		for (int i = 0; i < this->N; i++) {
 			// Selección
 			parents.set(0, this->so->execute(*pob));
@@ -157,12 +158,12 @@ void miGenetico::execute() {
 			RandomNumber* rnd = RandomNumber::getInstance();
 
 			
-			if (rnd->nextDouble() < .30) {
+			 
 				// Si el número es menor a 30 (30% de probabilidad), aplica la mejora.
 				this->improvement->execute(children.get(0));
 				this->improvement->execute(children.get(1));
 
-			}
+		 
 			 
 
 

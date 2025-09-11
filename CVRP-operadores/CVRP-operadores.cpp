@@ -19,7 +19,7 @@ using namespace std;
 #include "miGenetico.h"
 
 #include "miSwapMutation.h"
-#include "ScrambleMutation.h"
+#include "miScrambleMutation.h"
 
 
 #include <iostream>
@@ -46,10 +46,12 @@ using namespace std;
 
 int main()
 {
-    //std::mt19937 rng(310);  // Semilla fija
-    //srand(310);  // Semilla fija
-    //RandomNumber* rnd = RandomNumber::getInstance();
-    //rnd->setSeed(310);
+
+    
+    std::mt19937 rng(44665);  // Semilla fija
+    srand(44665);  // Semilla fija
+    RandomNumber* rnd = RandomNumber::getInstance();
+    rnd->setSeed(44665);
 
 
     for (int i = 0; i < 1; i++)
@@ -62,7 +64,7 @@ int main()
         ImprovementBuilder::add("LocalSearch", new LocalSearch());
         CrossoverBuilder::add("OxCrossover", new OxCrossover());
         MutationBuilder::add("miSwapMutation", new miSwapMutation());
-        MutationBuilder::add("ScrambleMutation", new ScrambleMutation());
+       MutationBuilder::add("miScrambleMutation", new miScrambleMutation());
 
 
         AlgorithmBuilder::add("miGenetico", new miGenetico());

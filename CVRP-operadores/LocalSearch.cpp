@@ -1,4 +1,4 @@
-#include "LocalSearch.h" 
+Ôªø#include "LocalSearch.h" 
 #include "problems/CVRP.h" 
 #include "tools/RandomNumber.h" 
 #include "solutions/SolutionSet.h" 
@@ -25,11 +25,19 @@ struct Move {
 	size_t pos2_route = -1, pos2_idx = -1;
 };
 
-// Estructura para localizar un nodo r·pidamente 
+// Estructura para localizar un nodo r√°pidamente 
 struct NodeLocation {
 	size_t route_idx;
 	size_t pos_idx;
 };
+
+void print_vector(const std::string& label, const std::vector<int>& vec) {
+	std::cout << label;
+	for (int val : vec) {
+		std::cout << val << " ";
+	}
+	std::cout << std::endl;
+}
 
 
 // --- FUNCIONES DE UTILIDAD --- 
@@ -63,7 +71,7 @@ void reconstruirSolucionDesdeRutas(Solution& sol, const std::vector<std::vector<
 		if (rutas[i].empty()) continue;
 		valores_planos.insert(valores_planos.end(), rutas[i].begin(), rutas[i].end());
 		if (i < rutas.size() - 1) {
-			// Solo aÒade depot si no es la ˙ltima ruta y hay m·s rutas no vacÌas despuÈs 
+			// Solo a√±ade depot si no es la √∫ltima ruta y hay m√°s rutas no vac√≠as despu√©s 
 			bool more_routes = false;
 			for (size_t j = i + 1; j < rutas.size(); ++j) {
 				if (!rutas[j].empty()) {
@@ -84,7 +92,7 @@ void reconstruirSolucionDesdeRutas(Solution& sol, const std::vector<std::vector<
 }
 
 
-// --- GeneraciÛn de Lista de Candidatos --- 
+// --- Generaci√≥n de Lista de Candidatos --- 
 std::vector<std::vector<int>> generarListaCandidatos(int num_clientes, int K, int** cost_matrix) {
 	std::vector<std::vector<int>> listaCandidatos(num_clientes + 1);
 	if (K >= num_clientes) K = num_clientes - 1;
@@ -108,11 +116,13 @@ std::vector<std::vector<int>> generarListaCandidatos(int num_clientes, int K, in
 }
 
 
-// --- B⁄SQUEDA DE VECINDAD INTRA-RUTA --- 
+// --- B√öSQUEDA DE VECINDAD INTRA-RUTA --- 
 bool explorarVecindadSwapIntra(std::vector<std::vector<int>>& rutas, CVRP* problema, int bestImprovement,std::vector<NodeLocation>& nodeLocations){
 	Move mejor_movimiento;
 	int** cost_matrix = problema->getCost_Matrix();
 
+	
+	 
 	for (size_t r = 0; r < rutas.size(); ++r) {
 		if (rutas[r].size() < 2) continue;
 		for (size_t i = 0; i < rutas[r].size(); ++i) {
@@ -140,7 +150,7 @@ bool explorarVecindadSwapIntra(std::vector<std::vector<int>>& rutas, CVRP* probl
 				if (delta < -1e-9) {
 					if (bestImprovement == 0) {
 						std::swap(rutas[r][i], rutas[r][j]);
-						// ACTUALIZACI”N: Intercambia solo las posiciones
+						// ACTUALIZACI√ìN: Intercambia solo las posiciones
 						std::swap(nodeLocations[u].pos_idx, nodeLocations[v].pos_idx);
 						return true;
 					}
@@ -215,7 +225,7 @@ bool explorarVecindad2OptIntra(std::vector<std::vector<int>>& rutas,
 		size_t i = mejor_movimiento.pos1_idx;
 		size_t j = mejor_movimiento.pos2_idx;
 		std::reverse(rutas[r].begin() + i, rutas[r].begin() + j + 1);
-		// ACTUALIZACI”N: Recorre el segmento invertido y actualiza sus posiciones
+		// ACTUALIZACI√ìN: Recorre el segmento invertido y actualiza sus posiciones
 		for (size_t k = i; k <= j; ++k) {
 			nodeLocations[rutas[r][k]].pos_idx = k;
 		}
@@ -232,6 +242,18 @@ bool explorarVecindadSwapInter(std::vector<std::vector<int>>& rutas, CVRP* probl
 	int** cost_matrix = problema->getCost_Matrix();
 	int* demands = problema->getCustomerDemand();
 	const int capacity = problema->getMaxCapacity();
+	//////////////// DEPURAR ACTUALIZACION DE NODE LOCATIONS ///////////////////////
+
+	//// Funci√≥n auxiliar para mantener 'nodeLocations' sincronizado con 'rutas'
+	//auto sincronizar_locaciones = [&](const std::vector<std::vector<int>>& rutas) {
+	//	for (size_t r = 0; r < rutas.size(); ++r) {
+	//		for (size_t p = 0; p < rutas[r].size(); ++p) {
+	//			nodeLocations[rutas[r][p]] = { r, p };
+	//		}
+	//	}
+	//	};
+	//sincronizar_locaciones(rutas);
+
 
 	for (size_t r1 = 0; r1 < rutas.size(); ++r1) {
 		for (size_t i = 0; i < rutas[r1].size(); ++i) {
@@ -260,7 +282,7 @@ bool explorarVecindadSwapInter(std::vector<std::vector<int>>& rutas, CVRP* probl
 						demandas_rutas[r1] += demanda_v - demanda_u;
 						demandas_rutas[r2] += demanda_u - demanda_v;
 						std::swap(rutas[r1][i], rutas[r2][j]);
-						std::swap(nodeLocations[u], nodeLocations[v]); // ActualizaciÛn crÌtica 
+						std::swap(nodeLocations[u], nodeLocations[v]); // Actualizaci√≥n cr√≠tica 
 						return true;
 					}
 					if (delta < mejor_movimiento.delta_cost) {
@@ -278,7 +300,7 @@ bool explorarVecindadSwapInter(std::vector<std::vector<int>>& rutas, CVRP* probl
 		demandas_rutas[r1] += demands[v] - demands[u];
 		demandas_rutas[r2] += demands[u] - demands[v];
 		std::swap(rutas[r1][i], rutas[r2][j]);
-		std::swap(nodeLocations[u], nodeLocations[v]); // ActualizaciÛn crÌtica 
+		std::swap(nodeLocations[u], nodeLocations[v]); // Actualizaci√≥n cr√≠tica 
 		return true;
 	}
 	return false;
@@ -290,6 +312,9 @@ bool explorarVecindad2OptInter(std::vector<std::vector<int>>& rutas,
 	int bestImprovement,
 	const std::vector<std::vector<int>>& listaCandidatos,
 	std::vector<NodeLocation>& nodeLocations) {
+
+	
+
 	Move mejor_movimiento;
 	int** cost_matrix = problema->getCost_Matrix();
 	int* demands = problema->getCustomerDemand();
@@ -341,7 +366,7 @@ bool explorarVecindad2OptInter(std::vector<std::vector<int>>& rutas,
 						demandas_rutas[r1] += demanda_cola2 - demanda_cola1;
 						demandas_rutas[r2] += demanda_cola1 - demanda_cola2;
 
-						// --- actualizar suffix sums sÛlo para r1 y r2 --- 
+						// --- actualizar suffix sums s√≥lo para r1 y r2 --- 
 						suffixDemand[r1].resize(rutas[r1].size() + 1, 0.0);
 						for (int k = (int)rutas[r1].size() - 1; k >= 0; --k)
 							suffixDemand[r1][k] = demands[rutas[r1][k]] + suffixDemand[r1][k + 1];
@@ -384,7 +409,7 @@ bool explorarVecindad2OptInter(std::vector<std::vector<int>>& rutas,
 		demandas_rutas[r1] += demanda_cola2 - demanda_cola1;
 		demandas_rutas[r2] += demanda_cola1 - demanda_cola2;
 
-		// --- actualizar suffix sums sÛlo para r1 y r2 --- 
+		// --- actualizar suffix sums s√≥lo para r1 y r2 --- 
 		suffixDemand[r1].resize(rutas[r1].size() + 1, 0.0);
 		for (int k = (int)rutas[r1].size() - 1; k >= 0; --k)
 			suffixDemand[r1][k] = demands[rutas[r1][k]] + suffixDemand[r1][k + 1];
@@ -392,7 +417,7 @@ bool explorarVecindad2OptInter(std::vector<std::vector<int>>& rutas,
 		for (int k = (int)rutas[r2].size() - 1; k >= 0; --k)
 			suffixDemand[r2][k] = demands[rutas[r2][k]] + suffixDemand[r2][k + 1];
 
-		// ACTUALIZACI”N: Recorre los segmentos movidos y actualiza su ruta y posiciÛn
+		// ACTUALIZACI√ìN: Recorre los segmentos movidos y actualiza su ruta y posici√≥n
 		for (size_t k = 0; k < cola2.size(); ++k) {
 			nodeLocations[cola2[k]] = { r1, i + 1 + k };
 		}
@@ -408,8 +433,16 @@ bool explorarVecindad2OptInter(std::vector<std::vector<int>>& rutas,
 
 
 // --- ORQUESTADOR VND (Variable Neighborhood Descent) --- 
-void busquedaLocalVND(Solution& sol, CVRP* problema, int bestImprovement, EstrategiaRuta est_ruta, const std::vector<std::vector<int>>& listaCandidatos) {
-	auto rutas = decodificarRutas(sol, problema);
+void busquedaLocalVND(
+	std::vector<std::vector<int>>& rutas, // Recibe las rutas directamente
+	Solution& sol,                         // Recibe la soluci√≥n para actualizarla al final
+	CVRP* problema,
+	int bestImprovement,
+	EstrategiaRuta est_ruta,
+	const std::vector<std::vector<int>>& listaCandidatos,
+	std::vector<NodeLocation>& nodeLocations // ¬°Recibe nodeLocations por referencia!
+) {
+	// Ya no decodificamos las rutas, las recibimos como par√°metro
 	if (rutas.empty()) return;
 
 	const int* demands = problema->getCustomerDemand();
@@ -419,23 +452,14 @@ void busquedaLocalVND(Solution& sol, CVRP* problema, int bestImprovement, Estrat
 		for (int nodo : rutas[i]) demandas_rutas[i] += demands[nodo];
 	}
 
-	// --- CAMBIO CLAVE: Se crea e inicializa UNA SOLA VEZ aquÌ ---
-	std::vector<NodeLocation> nodeLocations(problema->getNumberCustomers() + 1);
-	for (size_t r = 0; r < rutas.size(); ++r) {
-		for (size_t p = 0; p < rutas[r].size(); ++p) {
-			nodeLocations[rutas[r][p]] = { r, p };
-		}
-	}
-
+ 
 	bool mejora_encontrada = true;
 	while (mejora_encontrada) {
 		mejora_encontrada = false;
-
-		 
-
+		//////////////// DEPURAR ACTUALIZACION DE NODE LOCATIONS ///////////////////////
 		if (est_ruta == EstrategiaRuta::INTRA || est_ruta == EstrategiaRuta::AMBAS) {
-			if (explorarVecindadSwapIntra(rutas, problema, bestImprovement, nodeLocations)) { mejora_encontrada = true; continue; } // <-- Pasa nodeLocations
-			if (explorarVecindad2OptIntra(rutas, problema, bestImprovement, nodeLocations)) { mejora_encontrada = true; continue; } // <-- Pasa nodeLocations
+			if (explorarVecindadSwapIntra(rutas, problema, bestImprovement, nodeLocations)) { mejora_encontrada = true; continue; }
+			if (explorarVecindad2OptIntra(rutas, problema, bestImprovement, nodeLocations)) { mejora_encontrada = true; continue; }
 		}
 		if (est_ruta == EstrategiaRuta::INTER || est_ruta == EstrategiaRuta::AMBAS) {
 			if (explorarVecindadSwapInter(rutas, problema, demandas_rutas, bestImprovement, listaCandidatos, nodeLocations)) { mejora_encontrada = true; continue; }
@@ -450,27 +474,37 @@ void busquedaLocalVND(Solution& sol, CVRP* problema, int bestImprovement, Estrat
 
 
 
-void perturbarSolucionSwap(std::vector<std::vector<int>>& rutas, int num_clientes_total) {
+// Cambia la firma para aceptar nodeLocations
+void perturbarSolucionSwap(std::vector<std::vector<int>>& rutas, std::vector<NodeLocation>& nodeLocations, int num_clientes_total) {
 	if (rutas.empty() || num_clientes_total < 4) return;
 	RandomNumber* rnd = RandomNumber::getInstance();
 	int num_perturbaciones = std::min(100, static_cast<int>(num_clientes_total * 0.15));
+
 	for (int k = 0; k < num_perturbaciones; ++k) {
 		if (rutas.size() < 2) continue;
 		int r1 = rnd->nextInt(rutas.size() - 1), r2 = rnd->nextInt(rutas.size() - 1);
 		if (r1 == r2 || rutas[r1].empty() || rutas[r2].empty()) continue;
 		int idx1 = rnd->nextInt(rutas[r1].size() - 1), idx2 = rnd->nextInt(rutas[r2].size() - 1);
+
+		// Obtenemos los IDs de los nodos ANTES del swap
+		const int u = rutas[r1][idx1];
+		const int v = rutas[r2][idx2];
+
 		std::swap(rutas[r1][idx1], rutas[r2][idx2]);
+
+		// A√ëADIR ESTA L√çNEA: Actualizaci√≥n at√≥mica
+		std::swap(nodeLocations[u], nodeLocations[v]);
 	}
 }
 
 
-void perturbarSolucionScramble(std::vector<std::vector<int>>& rutas, int num_clientes_total) {
+void perturbarSolucionScramble(std::vector<std::vector<int>>& rutas, std::vector<NodeLocation>& nodeLocations, int num_clientes_total) {
 	if (rutas.empty() || num_clientes_total < 4) return;
 
 	// 1. Aplanar todas las rutas en una sola lista de clientes
 	std::vector<int> todos_los_clientes;
 	todos_los_clientes.reserve(num_clientes_total);
-	std::vector<size_t> tamanos_rutas; // Guardar el tamaÒo original de cada ruta
+	std::vector<size_t> tamanos_rutas; // Guardar el tama√±o original de cada ruta
 	tamanos_rutas.reserve(rutas.size());
 
 	for (const auto& ruta : rutas) {
@@ -484,7 +518,7 @@ void perturbarSolucionScramble(std::vector<std::vector<int>>& rutas, int num_cli
 
 	RandomNumber* rnd = RandomNumber::getInstance();
 
-	// 2. Seleccionar un subconjunto aleatorio para barajar (lÛgica de Scramble)
+	// 2. Seleccionar un subconjunto aleatorio para barajar (l√≥gica de Scramble)
 	int pos1 = rnd->nextInt(todos_los_clientes.size() - 1);
 	int pos2;
 	do {
@@ -497,22 +531,29 @@ void perturbarSolucionScramble(std::vector<std::vector<int>>& rutas, int num_cli
 
 	// 3. Barajar (scramble) el subconjunto usando el algoritmo de Fisher-Yates
 	for (int i = pos2; i > pos1; --i) {
-		// Elige un Ìndice aleatorio 'j' en el rango no barajado [pos1, i]
+		// Elige un √≠ndice aleatorio 'j' en el rango no barajado [pos1, i]
 		int j = pos1 + rnd->nextInt(i - pos1); //  
 		std::swap(todos_los_clientes[i], todos_los_clientes[j]);
 	}
 
 	// 4. Reconstruir las rutas con la lista de clientes ya barajada
 	auto cliente_iterator = todos_los_clientes.begin();
+	size_t ruta_idx_no_vacia = 0; // Un contador para tamanos_rutas
 	for (size_t i = 0; i < rutas.size(); ++i) {
-		if (tamanos_rutas[i] > 0) {
-			// Asigna la porciÛn correspondiente de clientes a la ruta
-			rutas[i].assign(cliente_iterator, cliente_iterator + tamanos_rutas[i]);
-			cliente_iterator += tamanos_rutas[i];
+		if (!rutas[i].empty()) {
+			rutas[i].assign(cliente_iterator, cliente_iterator + tamanos_rutas[ruta_idx_no_vacia]);
+			cliente_iterator += tamanos_rutas[ruta_idx_no_vacia];
+			ruta_idx_no_vacia++;
+		}
+	}
+
+	// A√ëADIR ESTO: Reconstruir nodeLocations desde las rutas modificadas
+	for (size_t r = 0; r < rutas.size(); ++r) {
+		for (size_t p = 0; p < rutas[r].size(); ++p) {
+			nodeLocations[rutas[r][p]] = { r, p };
 		}
 	}
 }
-
 
 
 
@@ -531,11 +572,7 @@ void LocalSearch::initialize(Requirements* config) {
 
 
 void LocalSearch::execute(Solution y) {
-
-	// Tomamos el tiempo de inicio
-	auto start = std::chrono::high_resolution_clock::now();
-
-	// 1. Obtener par·metros y problema 
+	// 1. Obtener par√°metros y problema
 	const int MAX_ITER_SIN_MEJORA = this->param.get("#Iteraciones-sin-mejora").getInt();
 	const int BEST_IMPROVEMENT = this->param.get("#BestImprovement").getInt();
 	const auto ESTRATEGIA_RUTA = static_cast<EstrategiaRuta>(this->param.get("#EstrategiaRuta").getInt());
@@ -543,68 +580,74 @@ void LocalSearch::execute(Solution y) {
 	CVRP* problema = dynamic_cast<CVRP*>(y.getProblem());
 	const bool maximization = y.getProblem()->getObjectivesType()[0] == Constantes::MAXIMIZATION;
 
-	const int K = 15; //  tamaÒo de la lista de candidatos 
-	std::vector<std::vector<int>>listaCandidatos_ = generarListaCandidatos(problema->getNumberCustomers(), K, problema->getCost_Matrix());
+	const int K = 15; // Tama√±o de la lista de candidatos
+	std::vector<std::vector<int>> listaCandidatos_ = generarListaCandidatos(problema->getNumberCustomers(), K, problema->getCost_Matrix());
 
-	// 3. B˙squeda local inicial 
-	busquedaLocalVND(y, problema, BEST_IMPROVEMENT, ESTRATEGIA_RUTA, listaCandidatos_);
+	// ======================= INICIO DE CAMBIOS PRINCIPALES =======================
 
+	// 2. Decodificar la soluci√≥n inicial y preparar las estructuras de datos
+	auto rutas_candidatas = decodificarRutas(y, problema);
+	std::vector<NodeLocation> nodeLocations(problema->getNumberCustomers() + 1);
+
+	// Funci√≥n auxiliar para mantener 'nodeLocations' sincronizado con 'rutas'
+	auto sincronizar_locaciones = [&](const std::vector<std::vector<int>>& rutas) {
+		for (size_t r = 0; r < rutas.size(); ++r) {
+			for (size_t p = 0; p < rutas[r].size(); ++p) {
+				nodeLocations[rutas[r][p]] = { r, p };
+			}
+		}
+		};
+
+	sincronizar_locaciones(rutas_candidatas); // Sincronizaci√≥n inicial
+
+	// 3. B√∫squeda local inicial (ahora usando las nuevas estructuras)
+	// Esta llamada modificar√° 'rutas_candidatas' y actualizar√° la soluci√≥n 'y'
+	busquedaLocalVND(rutas_candidatas, y, problema, BEST_IMPROVEMENT, ESTRATEGIA_RUTA, listaCandidatos_, nodeLocations);
+
+	// 4. Establecer la soluci√≥n mejorada como punto de partida para ILS
 	Solution mejor_solucion = y;
 	int iteraciones_sin_mejora = 0;
 
-	// 4. Bucle principal de B˙squeda Local Iterada (ILS) 
+	// 5. Bucle principal de B√∫squeda Local Iterada (ILS)
 	while (iteraciones_sin_mejora < MAX_ITER_SIN_MEJORA) {
-		Solution candidata = mejor_solucion;
-
-		auto rutas_candidatas = decodificarRutas(candidata, problema);
+		Solution candidata_actual = mejor_solucion;
 		RandomNumber* rnd = RandomNumber::getInstance();
-		if (rnd->nextDouble() < 0.3)
-			perturbarSolucionScramble(rutas_candidatas, problema->getNumberCustomers());
+
+		// Perturbaci√≥n (ahora recibe y actualiza 'nodeLocations')
+		if (rnd->nextDouble() < 0.3) {
+			perturbarSolucionScramble(rutas_candidatas, nodeLocations, problema->getNumberCustomers());
+		}
 		else {
-			perturbarSolucionSwap(rutas_candidatas, problema->getNumberCustomers());
+			perturbarSolucionSwap(rutas_candidatas, nodeLocations, problema->getNumberCustomers());
 		}
-		reconstruirSolucionDesdeRutas(candidata, rutas_candidatas);
-		problema->evaluate(&candidata);
-		problema->evaluateConstraints(&candidata);
 
-		// B˙squeda local sobre la soluciÛn perturbada, usando la lista de candidatos 
-		busquedaLocalVND(candidata, problema, BEST_IMPROVEMENT, ESTRATEGIA_RUTA, listaCandidatos_);
+		// B√∫squeda local sobre la soluci√≥n perturbada
+		busquedaLocalVND(rutas_candidatas, candidata_actual, problema, BEST_IMPROVEMENT, ESTRATEGIA_RUTA, listaCandidatos_, nodeLocations);
 
-		// Criterio de aceptaciÛn 
+		// Criterio de aceptaci√≥n
 		bool es_mejor = false;
-		if (candidata.getNumberOfViolatedConstraints() == 0 && mejor_solucion.getNumberOfViolatedConstraints() == 0) {
-			es_mejor = (!maximization && candidata.getObjective(0).L < mejor_solucion.getObjective(0).L);
+		if (candidata_actual.getNumberOfViolatedConstraints() == 0 && mejor_solucion.getNumberOfViolatedConstraints() == 0) {
+			es_mejor = (!maximization && candidata_actual.getObjective(0).L < mejor_solucion.getObjective(0).L);
 		}
-		else if (candidata.getNumberOfViolatedConstraints() < mejor_solucion.getNumberOfViolatedConstraints()) {
+		else if (candidata_actual.getNumberOfViolatedConstraints() < mejor_solucion.getNumberOfViolatedConstraints()) {
 			es_mejor = true;
 		}
 
 		if (es_mejor) {
-			mejor_solucion = candidata;
+			mejor_solucion = candidata_actual;
+			// Las 'rutas_candidatas' ya son las correctas para la siguiente iteraci√≥n
+			// 'nodeLocations' ya fue actualizado por la b√∫squeda local. No se necesita hacer nada.
 			iteraciones_sin_mejora = 0;
 		}
 		else {
+			// Si no hay mejora, revertimos las rutas a las de la √∫ltima mejor soluci√≥n
+			rutas_candidatas = decodificarRutas(mejor_solucion, problema);
+			sincronizar_locaciones(rutas_candidatas); // Revertir tambi√©n las locaciones es crucial
 			iteraciones_sin_mejora++;
 		}
 	}
 
-	y = mejor_solucion;
+	// ======================= FIN DE CAMBIOS PRINCIPALES =======================
 
-
-	// Tomamos el tiempo de finalizaciÛn
-	auto end = std::chrono::high_resolution_clock::now();
-
-	// Calculamos la duraciÛn y la convertimos a milisegundos
-	auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-	// Convertimos el conteo de milisegundos a segundos en un double
-	double seconds = duration_ms.count() / 1000.0;
-
-	//// Imprimimos el resultado en segundos
-	//std::cout << "--------------------------------------------------" << std::endl;
-	//std::cout << "Tiempo de ejecuciÛn de LocalSearch: " << seconds << " s" << std::endl;
-	//std::cout << "--------------------------------------------------" << std::endl;
-
-
-
+	y = mejor_solucion; // Asignar la mejor soluci√≥n encontrada
 }

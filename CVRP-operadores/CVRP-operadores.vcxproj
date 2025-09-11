@@ -205,7 +205,7 @@
     <ClCompile Include="LocalSearch.cpp" />
     <ClCompile Include="miGenetico.cpp" />
     <ClCompile Include="OxCrossover.cpp" />
-    <ClCompile Include="ScrambleMutation.cpp" />
+    <ClCompile Include="miScrambleMutation.cpp" />
     <ClCompile Include="miSwapMutation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -213,10 +213,11 @@
     <ClInclude Include="LocalSearch.h" />
     <ClInclude Include="miGenetico.h" />
     <ClInclude Include="OxCrossover.h" />
-    <ClInclude Include="ScrambleMutation.h" />
+    <ClInclude Include="miScrambleMutation.h" />
     <ClInclude Include="miSwapMutation.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Salida-CVRP .txt" />
     <Text Include="_INPUT-CVRP\config_GA.txt" />
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP.txt" />
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP_2.txt" />
