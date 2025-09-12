@@ -42,7 +42,7 @@ using namespace std;
 
 #include <fstream>
 #include <tools/Builders/HyperheuristicBuilder.h>
-
+#include "miBRBAX.h"
 
 int main()
 {
@@ -62,6 +62,7 @@ int main()
 
         cout << i << endl;
         ImprovementBuilder::add("LocalSearch", new LocalSearch());
+        CrossoverBuilder::add("miBRBAX", new miBRBAX());
         CrossoverBuilder::add("OxCrossover", new OxCrossover());
         MutationBuilder::add("miSwapMutation", new miSwapMutation());
        MutationBuilder::add("miScrambleMutation", new miScrambleMutation());

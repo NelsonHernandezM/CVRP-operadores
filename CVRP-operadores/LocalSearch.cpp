@@ -242,6 +242,16 @@ bool explorarVecindadSwapInter(std::vector<std::vector<int>>& rutas, CVRP* probl
 	int** cost_matrix = problema->getCost_Matrix();
 	int* demands = problema->getCustomerDemand();
 	const int capacity = problema->getMaxCapacity();
+
+	cout << "************ANTES DE ACTUALIZAR******SWAPINTER*************" << endl;
+
+	// 3. Recorremos el vector e imprimimos los miembros de cada objeto
+	for (const auto& location : nodeLocations) {
+		std::cout << "Ruta: " << location.route_idx
+			<< ", Posicion: " << location.pos_idx << std::endl;
+	}
+	cout << "**********************************************" << endl;
+
 	//////////////// DEPURAR ACTUALIZACION DE NODE LOCATIONS ///////////////////////
 
 	//// Función auxiliar para mantener 'nodeLocations' sincronizado con 'rutas'

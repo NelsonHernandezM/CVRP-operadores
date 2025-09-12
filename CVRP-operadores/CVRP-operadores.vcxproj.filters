@@ -36,6 +36,9 @@
     <ClCompile Include="miScrambleMutation.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="miBRBAX.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="miGenetico.h">
@@ -54,6 +57,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="miScrambleMutation.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="miBRBAX.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

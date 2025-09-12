@@ -159,7 +159,7 @@ void miGenetico::execute() {
 
 			
 			 
-				// Si el número es menor a 30 (30% de probabilidad), aplica la mejora.
+				//// Si el número es menor a 30 (30% de probabilidad), aplica la mejora.
 				this->improvement->execute(children.get(0));
 				this->improvement->execute(children.get(1));
 
