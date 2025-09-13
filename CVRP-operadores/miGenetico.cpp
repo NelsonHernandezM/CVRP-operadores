@@ -157,12 +157,14 @@ void miGenetico::execute() {
 
 			RandomNumber* rnd = RandomNumber::getInstance();
 
-			
-			 
-				//// Si el número es menor a 30 (30% de probabilidad), aplica la mejora.
+			/*
+			cout << endl;*/
+		//// Si el número es menor a 1 (10% de probabilidad), aplica la mejora.
+			if (rnd->nextDouble() < 0.1) {
+				/*cout << "pase\r" ;*/
 				this->improvement->execute(children.get(0));
 				this->improvement->execute(children.get(1));
-
+			}
 		 
 			 
 

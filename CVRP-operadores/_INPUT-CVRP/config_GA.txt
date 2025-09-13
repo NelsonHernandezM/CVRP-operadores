@@ -2,8 +2,8 @@
 #Algorithm miGenetico
 
 //parámetros
-#MAX_GENERATIONS 4
-#N 150
+#MAX_GENERATIONS 100
+#N 50
  
  
 
@@ -23,6 +23,6 @@
 #improvement LocalSearch
 #BestImprovement 1
 #EstrategiaRuta 2
-#Iteraciones-sin-mejora 10
+#Iteraciones-sin-mejora 4
 
 =====================================================================================================
