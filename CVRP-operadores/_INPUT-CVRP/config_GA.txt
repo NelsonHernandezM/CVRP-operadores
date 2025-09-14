@@ -11,15 +11,15 @@
 
 
 #mutation miScrambleMutation
-#miScrambleMutation-probability 0.4
+#miScrambleMutation-probability 0.9
 
  
 
 
 #selection TournamentSelection
 #TournamentSelection-size 2
-#crossover OxCrossover
-#repair miCVRP_Repair 
+#crossover miBRBAX
+#repair CVRP_Repair 
 #improvement LocalSearch
 #BestImprovement 1
 #EstrategiaRuta 2

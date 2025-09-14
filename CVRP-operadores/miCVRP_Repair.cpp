@@ -67,9 +67,103 @@ std::vector<std::vector<int>> separarSolucionPorRutas(Solution* s) {
     return rutas;
 }
 
+/**
+ * @brief Repara una solución decodificando una secuencia plana de clientes en rutas válidas.
+ * Esta función está optimizada para cromosomas que son una simple permutación de clientes
+ * (como los generados por crossovers tipo PMX, OX o Pereira), preservando su orden relativo.
+ */
+void repararSolucion(Solution sol) {
+    CVRP* problema = dynamic_cast<CVRP*>(sol.getProblem());
+    if (!problema) return;
+
+    // --- PASO 1: Obtener la secuencia plana de clientes del cromosoma ---
+    std::vector<int> secuencia_clientes;
+    std::set<int> clientes_vistos;
+    Interval* vars = sol.getDecisionVariables();
+    int num_vars = sol.getNumVariables();
+
+    for (int i = 0; i < num_vars; ++i) {
+        int nodo = vars[i].L;
+        // Solo procesamos clientes válidos y únicos
+        if (problema->isCustomer(nodo) && clientes_vistos.find(nodo) == clientes_vistos.end()) {
+            secuencia_clientes.push_back(nodo);
+            clientes_vistos.insert(nodo);
+        }
+    }
+
+    // Añadir clientes que pudieran faltar en la permutación (aunque no debería pasar con un buen crossover)
+    for (int i = 1; i <= problema->getNumberCustomers(); ++i) {
+        if (clientes_vistos.find(i) == clientes_vistos.end()) {
+            secuencia_clientes.push_back(i);
+        }
+    }
+
+
+    // --- PASO 2: Construir rutas a partir de la secuencia, respetando el orden ---
+    std::vector<std::vector<int>> rutas_finales;
+    if (secuencia_clientes.empty()) {
+        // No hay clientes, la solución está vacía
+    }
+    else {
+        std::vector<int> ruta_actual = { 0 }; // Toda ruta empieza en el depósito
+        int carga_actual = 0;
+        int max_capacidad = problema->getMaxCapacity();
+
+        for (int cliente : secuencia_clientes) {
+            int demanda_cliente = problema->getCustomerDemand()[cliente];
+
+            if (rutas_finales.size() < (size_t)problema->getNumVehicles() && carga_actual + demanda_cliente <= max_capacidad) {
+                // El cliente cabe en la ruta actual, lo añadimos
+                ruta_actual.push_back(cliente);
+                carga_actual += demanda_cliente;
+            }
+            else {
+                // El cliente no cabe o ya no hay vehículos, cerramos la ruta actual
+                ruta_actual.push_back(0); // Regreso al depósito
+                if (ruta_actual.size() > 2) { // Solo guardamos rutas con al menos un cliente
+                    rutas_finales.push_back(ruta_actual);
+                }
+
+                // Iniciamos una nueva ruta con el cliente actual
+                if (rutas_finales.size() < (size_t)problema->getNumVehicles()) {
+                    ruta_actual = { 0, cliente };
+                    carga_actual = demanda_cliente;
+                }
+                else {
+                    // Si ya no hay más vehículos, los clientes restantes se pierden.
+                    // (Una mejora podría ser intentar insertarlos en rutas existentes si sobra espacio)
+                    break;
+                }
+            }
+        }
+
+        // No olvidar guardar la última ruta en construcción
+        if (ruta_actual.size() > 1 && rutas_finales.size() < (size_t)problema->getNumVehicles()) {
+            ruta_actual.push_back(0);
+            rutas_finales.push_back(ruta_actual);
+        }
+    }
+
+    // --- PASO 3: Reconstruir el objeto Solution a partir de las nuevas rutas ---
+    std::vector<int> solucion_final_cromosoma;
+    for (const auto& ruta : rutas_finales) {
+        // Añadimos los clientes y el cero final de la ruta
+        solucion_final_cromosoma.insert(solucion_final_cromosoma.end(), ruta.begin() + 1, ruta.end());
+    }
+
+    // Actualizar el objeto 'sol' directamente
+    size_t i = 0;
+    for (; i < solucion_final_cromosoma.size(); ++i) {
+        sol.setVariableValue(i, solucion_final_cromosoma[i]);
+    }
+    // Rellenar el resto del cromosoma con -1 para marcar el fin
+    for (; i < (size_t)num_vars; ++i) {
+        sol.setVariableValue(i, -1);
+    }
+}
 
 // --- FUNCIÓN DE REPARACIÓN (MODIFICADA) ---
-void repararSolucion(Solution sol) {
+void repararSolucion2(Solution sol) {
     CVRP* problema = dynamic_cast<CVRP*>(sol.getProblem());
     if (!problema) return;
 

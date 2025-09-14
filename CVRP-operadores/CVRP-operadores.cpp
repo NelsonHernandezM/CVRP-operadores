@@ -24,12 +24,12 @@ using namespace std;
 
 #include <iostream>
 #include <tools/AlgorithmBuilder.h>
- 
+
 #include<tools/builders/ProblemBuilder.h>
 #include <tools/builders/MutationBuilder.h>
 #include <tools/builders/ImprovementBuilder.h>
 #include <tools/builders/RepairBuilder.h>
- 
+
 #include "OxCrossover.h"
 #include "miCVRP_Repair.h"
 #include "LocalSearch.h"
@@ -47,63 +47,69 @@ using namespace std;
 int main()
 {
 
-    
-    std::mt19937 rng(44665);  // Semilla fija
-    srand(44665);  // Semilla fija
-    RandomNumber* rnd = RandomNumber::getInstance();
-    rnd->setSeed(44665);
 
 
-    for (int i = 0; i < 1; i++)
-    {
-
-
-        auto start = std::chrono::high_resolution_clock::now(); // Inicio del tiempo
-
-        cout << i << endl;
-        ImprovementBuilder::add("LocalSearch", new LocalSearch());
-        CrossoverBuilder::add("miBRBAX", new miBRBAX());
-        CrossoverBuilder::add("OxCrossover", new OxCrossover());
-        MutationBuilder::add("miSwapMutation", new miSwapMutation());
-       MutationBuilder::add("miScrambleMutation", new miScrambleMutation());
-
-
-        AlgorithmBuilder::add("miGenetico", new miGenetico());
-        RepairBuilder::add("miCVRP_Repair", new miCVRP_Repair());
-        Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
-
-        alg->execute();
-        std::string nombreArchivo = "Salida-CVRP .txt";
-        ofstream out(nombreArchivo);
-        SolutionSet res = alg->getSolutionSet();
-
-        out << res;
-        out.close();
-
-        cout << *alg->getLastB() << endl;
-        cout << alg->getSolutionSet() << endl;
-
-        // Liberar memoria manualmente
-       /* delete alg;*/
-
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duration = end - start;
-        std::cout << "Iteración " << i << " tiempo: " << duration.count() << " segundos" <<" minutos: " << duration.count()/60 << std::endl;
-    }
+	RandomNumber* rnd2 = RandomNumber::getInstance();
 
 
 
- /*   Hyperheuristic* a = HyperheuristicBuilder::execute("HH_CVRP-N01-I01-CVRP_Simple.txt");
-    a->execute();
+	for (int i = 0; i < 10; i++)
+	{
+		int semilla = rnd2->nextInt(100000);
+		if (i > 0) { semilla = rnd2->nextInt(100000); }
+		else {
+			semilla = 9261;
+		}cout << "semilla: " << semilla << endl;
+		std::mt19937 rng(semilla);  // Semilla fija
+		srand(semilla);  // Semilla fija
+		RandomNumber* rnd = RandomNumber::getInstance();
+		rnd->setSeed(semilla);
 
-    ofstream out("Salida-HH_CVRP.txt");
-    SolutionSet res = a->getSolutionSet();
+		auto start = std::chrono::high_resolution_clock::now(); // Inicio del tiempo
 
-    out << res;
-    out.close();*/
+		cout << i << endl;
+		ImprovementBuilder::add("LocalSearch", new LocalSearch());
+		CrossoverBuilder::add("miBRBAX", new miBRBAX());
+		CrossoverBuilder::add("OxCrossover", new OxCrossover());
+		MutationBuilder::add("miSwapMutation", new miSwapMutation());
+		MutationBuilder::add("miScrambleMutation", new miScrambleMutation());
+
+
+		AlgorithmBuilder::add("miGenetico", new miGenetico());
+		/*      RepairBuilder::add("miCVRP_Repair", new miCVRP_Repair());*/
+		Algorithm* alg = AlgorithmBuilder::execute("_INPUT-CVRP/config_GA.txt");
+
+		alg->execute();
+		std::string nombreArchivo = "Salida-CVRP .txt";
+		ofstream out(nombreArchivo);
+		SolutionSet res = alg->getSolutionSet();
+
+		out << res;
+		out.close();
+
+		cout << *alg->getLastB() << endl;
+		cout << alg->getSolutionSet() << endl;
+
+		// Liberar memoria manualmente
+	   /* delete alg;*/
+
+
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> duration = end - start;
+		std::cout << "Iteración " << i << " tiempo: " << duration.count() << " segundos" << " minutos: " << duration.count() / 60 << std::endl;
+	}
+
+
+
+	/*   Hyperheuristic* a = HyperheuristicBuilder::execute("HH_CVRP-N01-I01-CVRP_Simple.txt");
+	   a->execute();
+
+	   ofstream out("Salida-HH_CVRP.txt");
+	   SolutionSet res = a->getSolutionSet();
+
+	   out << res;
+	   out.close();*/
 
 
 }
 
- 

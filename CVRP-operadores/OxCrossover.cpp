@@ -4,109 +4,154 @@
 #include <numeric>
 #include <algorithm>
 #include <vector>
-
- 
+#include "tools/operators/interval/TournamentSelection.h"
+#include "tools/operators/interval/CVRP_Repair.h"
 
 void OxCrossover::initialize(Requirements* config) {
-    this->local_ini = false;
+
+}
+
+void imprimirSolucionC2(Solution s) {
+	Interval* vars = s.getDecisionVariables();
+	for (int i = 0; i < s.getNumVariables(); i++) {
+		std::cout << vars[i].L << " ";
+	}
+	std::cout << std::endl;
 }
 
 void OxCrossover::execute(SolutionSet parents, SolutionSet children) {
-    RandomNumber* rnd = RandomNumber::getInstance();
-    int n = parents.get(0).getNumVariables();
 
- 
 
-    // Extraer solo los clientes de cada padre
-    std::vector<int> clientesPadre1, clientesPadre2;
-    clientesPadre1.reserve(n);
-    clientesPadre2.reserve(n);
+	TournamentSelection Torneo;
 
-   
-    int max_node_id = 0;
-    //mayor a CERO debido a que aqui 0 es el depsotio y -1 el final de todas las rutas
-    for (int i = 0; i < n; ++i) {
-        int nodo1 = parents.get(0).getVariableValue(i).L;
-        int nodo2 = parents.get(1).getVariableValue(i).L;
+	parents.set(0, Torneo.execute(parents, 2));
+	parents.set(1, Torneo.execute(parents, 2));
+	/*cout << endl;
+	cout << "Padres seleccionados: " << endl;
+	imprimirSolucionC2(parents.get(0));
+	cout << "Padres seleccionados: " << endl;
+	imprimirSolucionC2(parents.get(1));
+	cout << endl;*/
+	CVRP_Repair rep2;
+	rep2.execute(parents.get(0));
+	rep2.execute(parents.get(1));
+	//cout << endl;
+	//cout << "Padres reparadso: " << endl;
+	//imprimirSolucionC2(parents.get(0));
+	//cout << "Padres reparadso: " << endl;
+	//imprimirSolucionC2(parents.get(1));
+	//cout << endl;
 
- 
-        if (nodo1 != 0 && nodo1 != -1) {
-            clientesPadre1.push_back(nodo1);
-            if (nodo1 > max_node_id) max_node_id = nodo1;
-        }
-        if (nodo2 != 0 && nodo2 != -1) {
-            clientesPadre2.push_back(nodo2);
-            if (nodo2 > max_node_id) max_node_id = nodo2;
-        }
-    }
- 
-    if (clientesPadre1.size() < 2 || clientesPadre2.size() < 2) {
-        children.set(0, parents.get(0));
-        children.set(1, parents.get(1));
-        return;
-    }
 
-    int tamClientes = clientesPadre1.size();
- 
-    int punto1 = rnd->nextInt(tamClientes - 1);
-    int punto2 = rnd->nextInt( tamClientes - 1);
+	RandomNumber* rnd = rnd->getInstance();
+	Problem* p = parents.get(0).getProblem();
 
-    if (punto1 > punto2) std::swap(punto1, punto2);
 
-    std::vector<int> hijoClientes1(tamClientes, -1);
-    std::vector<int> hijoClientes2(tamClientes, -1);
- 
-    std::vector<bool> usadosHijo1(max_node_id + 1, false);
-    std::vector<bool> usadosHijo2(max_node_id + 1, false);
+	int n = parents.get(0).getNumVariables();
+	int j = rnd->nextInt(n - 1);
 
-   
-    for (int i = punto1; i <= punto2; i++) {
-        hijoClientes1[i] = clientesPadre1[i];
-        usadosHijo1[clientesPadre1[i]] = true;
 
-        hijoClientes2[i] = clientesPadre2[i];
-        usadosHijo2[clientesPadre2[i]] = true;
-    }
+	// Extraer solo los clientes de cada padre
+	std::vector<int> clientesPadre1, clientesPadre2;
+	clientesPadre1.reserve(n);
+	clientesPadre2.reserve(n);
 
- 
-    auto rellenar = [&](std::vector<int>& hijo, const std::vector<int>& padre, std::vector<bool>& usados) {
-        int posHijo = (punto2 + 1) % tamClientes;
-        for (int i = 0; i < tamClientes; ++i) {
-            int posPadre = (punto2 + 1 + i) % tamClientes;
-            int valor = padre[posPadre];
 
-            if (!usados[valor]) {
-                hijo[posHijo] = valor;
-                posHijo = (posHijo + 1) % tamClientes;
-            }
-        }
-        };
+	int max_node_id = 0;
+	//mayor a CERO debido a que aqui 0 es el depsotio y -1 el final de todas las rutas
+	for (int i = 0; i < n; ++i) {
+		int nodo1 = parents.get(0).getVariableValue(i).L;
+		int nodo2 = parents.get(1).getVariableValue(i).L;
 
-    rellenar(hijoClientes1, clientesPadre2, usadosHijo1);
-    rellenar(hijoClientes2, clientesPadre1, usadosHijo2);
 
-    // 3. Reconstruir las soluciones completas
-    int indiceCliente1 = 0;
-    int indiceCliente2 = 0;
+		if (nodo1 != 0 && nodo1 != -1) {
+			clientesPadre1.push_back(nodo1);
+			if (nodo1 > max_node_id) max_node_id = nodo1;
+		}
+		if (nodo2 != 0 && nodo2 != -1) {
+			clientesPadre2.push_back(nodo2);
+			if (nodo2 > max_node_id) max_node_id = nodo2;
+		}
+	}
 
-    // Usamos la estructura original de cada padre para reconstruir cada hijo
-    for (int i = 0; i < n; ++i) {
-        // Hijo 1 reconstruido con plantilla de Padre 1
-        int nodoOriginalP1 = parents.get(0).getVariableValue(i).L;
-        if (nodoOriginalP1 != 0 && nodoOriginalP1 != -1) {
-            children.get(0).setVariableValue(i, hijoClientes1[indiceCliente1++]);
-        }
-        else {
-            children.get(0).setVariableValue(i, nodoOriginalP1);
-        }
+	if (clientesPadre1.size() < 2 || clientesPadre2.size() < 2) {
+		children.set(0, parents.get(0));
+		children.set(1, parents.get(1));
+		return;
+	}
 
-        // Hijo 2 reconstruido con plantilla de Padre 2
-        int nodoOriginalP2 = parents.get(1).getVariableValue(i).L;
-        if (nodoOriginalP2 != 0 && nodoOriginalP2 != -1) {
-            children.get(1).setVariableValue(i, hijoClientes2[indiceCliente2++]);
-        }
-        else {
-            children.get(1).setVariableValue(i, nodoOriginalP2);
-        }
-    }
+
+	int tamClientes = std::min(clientesPadre1.size(), clientesPadre2.size());
+
+	int punto1 = rnd->nextInt(tamClientes - 1);
+	int punto2 = rnd->nextInt(tamClientes - 1);
+
+	if (punto1 > punto2) std::swap(punto1, punto2);
+
+	std::vector<int> hijoClientes1(tamClientes, -1);
+	std::vector<int> hijoClientes2(tamClientes, -1);
+
+	std::vector<bool> usadosHijo1(max_node_id + 1, false);
+	std::vector<bool> usadosHijo2(max_node_id + 1, false);
+
+
+	for (int i = punto1; i <= punto2; i++) {
+		hijoClientes1[i] = clientesPadre1[i];
+		usadosHijo1[clientesPadre1[i]] = true;
+
+		hijoClientes2[i] = clientesPadre2[i];
+		usadosHijo2[clientesPadre2[i]] = true;
+	}
+
+
+	auto rellenar = [&](std::vector<int>& hijo, const std::vector<int>& padre, std::vector<bool>& usados) {
+		int posHijo = (punto2 + 1) % tamClientes;
+		for (int i = 0; i < tamClientes; ++i) {
+			int posPadre = (punto2 + 1 + i) % tamClientes;
+			int valor = padre[posPadre];
+
+			if (!usados[valor]) {
+				hijo[posHijo] = valor;
+				posHijo = (posHijo + 1) % tamClientes;
+			}
+		}
+		};
+
+	rellenar(hijoClientes1, clientesPadre2, usadosHijo1);
+	rellenar(hijoClientes2, clientesPadre1, usadosHijo2);
+
+	// 3. Reconstruir las soluciones completas
+	int indiceCliente1 = 0;
+	int indiceCliente2 = 0;
+
+	// Usamos la estructura original de cada padre para reconstruir cada hijo
+	for (int i = 0; i < n; ++i) {
+
+
+
+		// Hijo 1 reconstruido con plantilla de Padre 1
+		int nodoOriginalP1 = parents.get(0).getVariableValue(i).L;
+		if (nodoOriginalP1 != 0 && nodoOriginalP1 != -1) {
+			children.get(0).setVariableValue(i, hijoClientes1[indiceCliente1++]);
+		}
+		else {
+			children.get(0).setVariableValue(i, nodoOriginalP1);
+		}
+
+		// Hijo 2 reconstruido con plantilla de Padre 2
+		int nodoOriginalP2 = parents.get(1).getVariableValue(i).L;
+		if (nodoOriginalP2 != 0 && nodoOriginalP2 != -1) {
+			children.get(1).setVariableValue(i, hijoClientes2[indiceCliente2++]);
+		}
+		else {
+			children.get(1).setVariableValue(i, nodoOriginalP2);
+		}
+
+	}
+	rep2.execute(children.get(0));
+	rep2.execute(children.get(1));
+
+
+
+
 }
