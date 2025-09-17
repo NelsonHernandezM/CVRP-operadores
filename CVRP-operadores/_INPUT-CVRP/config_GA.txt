@@ -18,7 +18,7 @@
 
 #selection TournamentSelection
 #TournamentSelection-size 2
-#crossover 41
+#crossover CombinationCrossover
 #repair CVRP_Repair 
 #improvement LocalSearch
 #BestImprovement 1
