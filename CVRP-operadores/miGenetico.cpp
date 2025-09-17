@@ -3,9 +3,9 @@
 #include <algorithm>
 #include "utility"
 #include <vector>
- 
 
- 
+
+
 miGenetico::miGenetico() :Algorithm(NULL) {
 
 }
@@ -33,7 +33,7 @@ void miGenetico::initialize(Requirements* req) {
 
 	this->problem_ = ProblemBuilder::execute(this->param_.get("#Problem-Instance").getString());
 
-	this->mo = (MutationOperator*)MutationBuilder::execute(req);
+	this->mo = (DEMutationOperator*)DEMutationBuilder::execute(req);
 	this->co = (CrossoverOperator*)CrossoverBuilder::execute(req);
 	this->so = (SelectionOperator*)SelectionBuilder::execute(req);
 	this->improvement = (ImprovementOperator*)ImprovementBuilder::execute(req);
@@ -88,11 +88,11 @@ void imprimirSolucion(Solution sol) {
 
 
 }
-  
+
 
 void miGenetico::execute() {
 	int generacionesSinMejora = 0;
-	int topeSinMejora = 100;
+	int topeSinMejora = 250;
 
 	int pobSize = 2 * this->N;
 	int generation = 0;
@@ -102,8 +102,9 @@ void miGenetico::execute() {
 	best = new SolutionSet(1, 1, this->problem_);
 	SolutionSet parents(2, 2, this->problem_);
 	SolutionSet children(2, 2, this->problem_);
- ////
-	int best_fitness_anterior = 0;
+	////
+	   // Declarar la variable aquí
+	long double best_fitness_anterior = 0.0; // Usar long double si .L es long double
 
 	// Generar población inicial
 	for (int i = 0; i < pobSize; i++) {
@@ -128,9 +129,12 @@ void miGenetico::execute() {
 		}
 	}
 
+	// <<< CAMBIO 1: Inicializar best_fitness_anterior DESPUÉS de la población inicial >>>
+	best_fitness_anterior = best->get(0).getObjective(0).L;
+
 	// Bucle principal
 	while (generation < this->MAX_GENERATIONS) {
-		cout << generation<<"\r";
+
 		for (int i = 0; i < this->N; i++) {
 			// Selección
 			parents.set(0, this->so->execute(*pob));
@@ -140,12 +144,18 @@ void miGenetico::execute() {
 			this->co->execute(parents, children);
 
 			// Mutación
-			this->mo->execute(children.get(0));
-			this->mo->execute(children.get(1));
+			this->mo->execute(*pob, children.get(0));
+			this->mo->execute(*pob, children.get(1));
 
 
 
 			////// Reparación
+			// 
+			
+	/*		CVRP_Repair rep;
+			rep.execute(children.getptr(0));
+			rep.execute(children.getptr(1));*/
+
 			this->reparacion->execute(children.get(0));
 			this->reparacion->execute(children.get(1));
 
@@ -159,17 +169,21 @@ void miGenetico::execute() {
 
 			/*
 			cout << endl;*/
-		//// Si el número es menor a 1 (10% de probabilidad), aplica la mejora.
+			// Si el número es menor a 1 (10% de probabilidad), aplica la mejora.
 			if (rnd->nextDouble() < 0.1) {
 				/*cout << "pase\r" ;*/
 				this->improvement->execute(children.get(0));
+
+			}
+			if (rnd->nextDouble() < 0.1) {
+				/*cout << "pase\r" ;*/
+
 				this->improvement->execute(children.get(1));
 			}
-		 
-			 
 
 
 
+			children.get(0).getVariableValue(0).L;
 			// Evaluación
 			this->problem_->evaluate(children.getptr(0));
 			this->problem_->evaluateConstraints(children.getptr(0));
@@ -184,13 +198,13 @@ void miGenetico::execute() {
 
 				if (maximization && children.get(h).getObjective(0) > best->get(0).getObjective(0) && children.get(h).getNumberOfViolatedConstraints() == 0) {
 					best->set(0, children.get(h));
-					  best_fitness_anterior = 0.0;
+					// <<< CAMBIO 2: Línea eliminada >>>
 				}
 				else if (!maximization && children.get(h).getObjective(0) < best->get(0).getObjective(0) && children.get(h).getNumberOfViolatedConstraints() == 0) {
 					best->set(0, children.get(h));
 					std::wstring m2 = L"MEJORSO: \n";
 					OutputDebugStringW(m2.c_str());
-					  best_fitness_anterior = 0.0;
+					// <<< CAMBIO 2: Línea eliminada >>>
 				}
 			}
 
@@ -215,13 +229,18 @@ void miGenetico::execute() {
 			}
 		}
 
-		// >>> 3. COMPRUEBA EL ESTANCAMIENTO AL FINAL DE LA GENERACIÓN <<<
-		if (best->get(0).getObjective(0).L == best_fitness_anterior) {
-			generacionesSinMejora++; // Si no cambió, incrementa el contador
+		// <<< CAMBIO 3: Lógica de estancamiento corregida >>>
+		// Obtenemos el fitness actual
+		auto current_best_fitness = best->get(0).getObjective(0).L;
+
+		if (current_best_fitness == best_fitness_anterior) {
+			generacionesSinMejora++; // No hubo mejora
 		}
 		else {
-			generacionesSinMejora = 0; // Si mejoró, reinicia el contador
+			generacionesSinMejora = 0; // Hubo mejora, reiniciar contador
+			best_fitness_anterior = current_best_fitness; // Actualizar el valor anterior
 		}
+
 		// Si se alcanza el tope, rompe el bucle y termina.
 		if (generacionesSinMejora >= topeSinMejora) {
 			break;
@@ -229,20 +248,23 @@ void miGenetico::execute() {
 
 		/*cout << best->get(0).getObjective(0) << endl;*/
 
-	/*	if (best->get(0).getObjective(0).L == 784) {
+		if (best->get(0).getObjective(0).L == 829) {
 			cout << "Óptimo encontrado en generación " << generation << endl;
 			break;
-			}*/
+			}
 
-		++generation;
 
  
+		cout << generation << " best: " << best->get(0).getObjective(0) << " sin mejora: " << generacionesSinMejora << "        \r" << flush;
+		++generation;
+
+
 
 	}
 
 	this->lastB_ = this->best;
 	this->last_ = *pob;
 
-	
+
 
 }

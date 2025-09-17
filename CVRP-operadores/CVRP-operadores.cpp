@@ -20,7 +20,7 @@ using namespace std;
 
 #include "miSwapMutation.h"
 #include "miScrambleMutation.h"
-
+#include "CombinationCrossover.h"
 
 #include <iostream>
 #include <tools/AlgorithmBuilder.h>
@@ -31,7 +31,7 @@ using namespace std;
 #include <tools/builders/RepairBuilder.h>
 
 #include "OxCrossover.h"
-#include "miCVRP_Repair.h"
+//#include "miCVRP_Repair.h"
 #include "LocalSearch.h"
 #include <chrono>
 #include <iostream>
@@ -53,12 +53,12 @@ int main()
 
 
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 1000; i++)
 	{
-		int semilla = rnd2->nextInt(100000);
+		int semilla = rnd2->nextInt(10000000);
 		if (i > 0) { semilla = rnd2->nextInt(100000); }
 		else {
-			semilla = 9261;
+			semilla = 9089;
 		}cout << "semilla: " << semilla << endl;
 		std::mt19937 rng(semilla);  // Semilla fija
 		srand(semilla);  // Semilla fija
@@ -70,6 +70,7 @@ int main()
 		cout << i << endl;
 		ImprovementBuilder::add("LocalSearch", new LocalSearch());
 		CrossoverBuilder::add("miBRBAX", new miBRBAX());
+		CrossoverBuilder::add("CombinationCrossover", new CombinationCrossover());
 		CrossoverBuilder::add("OxCrossover", new OxCrossover());
 		MutationBuilder::add("miSwapMutation", new miSwapMutation());
 		MutationBuilder::add("miScrambleMutation", new miScrambleMutation());

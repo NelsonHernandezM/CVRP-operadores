@@ -4,6 +4,7 @@
 #include "metaheuristics/Algorithm.h"
 #include "tools/Requirements.h"
 #include "tools/builders/MutationBuilder.h"
+#include "tools/builders/DEMutationBuilder.h"
 #include "tools/builders/SelectionBuilder.h"
 #include "tools/builders/CrossoverBuilder.h"
 #include "tools/builders/RepairBuilder.h"
@@ -22,7 +23,7 @@ class miGenetico : public Algorithm
 	SolutionSet* best;
 	SolutionSet* pob;
 
-	MutationOperator* mo;
+	DEMutationOperator* mo;
 	CrossoverOperator* co;
 	SelectionOperator* so;
 	ImprovementOperator* improvement;

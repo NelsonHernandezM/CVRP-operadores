@@ -197,12 +197,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CombinationCrossover.cpp" />
     <ClCompile Include="CVRP-operadores.cpp" />
     <ClCompile Include="miBRBAX.cpp" />
-    <ClCompile Include="miCVRP_Repair.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NHM|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="LocalSearch.cpp" />
     <ClCompile Include="miGenetico.cpp" />
     <ClCompile Include="OxCrossover.cpp" />
@@ -210,6 +207,7 @@
     <ClCompile Include="miSwapMutation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CombinationCrossover.h" />
     <ClInclude Include="miBRBAX.h" />
     <ClInclude Include="miCVRP_Repair.h" />
     <ClInclude Include="LocalSearch.h" />
