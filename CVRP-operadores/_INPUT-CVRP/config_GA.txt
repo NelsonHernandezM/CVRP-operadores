@@ -2,12 +2,12 @@
 #Algorithm miGenetico
 
 //parámetros
-#MAX_GENERATIONS 6
-#N 550
+#MAX_GENERATIONS 2000
+#N 250
  
  
 
-#Problem-Instance _INPUT-CVRP/instancia_simple_CVRP_2.txt
+#Problem-Instance _INPUT-CVRP/instancia_simple_CVRP_3.txt
 
 
 #DEmutation CombinationMutation
@@ -19,10 +19,11 @@
 #selection TournamentSelection
 #TournamentSelection-size 2
 #crossover CombinationCrossover
+#HeuristicCrossover-mode RandomChoice
 #repair CVRP_Repair 
 #improvement LocalSearch
 #BestImprovement 1
 #EstrategiaRuta 2
-#Iteraciones-sin-mejora 15
+#Iteraciones-sin-mejora 10
 
 =====================================================================================================

@@ -1,5 +1,4 @@
-//#pragma once
-//
+//  
 //#include "tools/builders/CrossoverBuilder.h"
 //#include "tools/RandomNumber.h"
 //#include "solutions/SolutionSet.h"
@@ -11,7 +10,7 @@
 //#include <cmath>
 //#include "../WindowsRequirements.h"
 //
-//class   CombinationCrossover : public CrossoverOperator {
+//class   PartiallyMappedCrossover : public CrossoverOperator {
 //private:
 //	const double EPS = 1.0e-14;
 //

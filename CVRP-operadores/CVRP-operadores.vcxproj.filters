@@ -36,9 +36,6 @@
     <ClCompile Include="miBRBAX.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="CombinationCrossover.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="miGenetico.h">
@@ -77,6 +74,9 @@
       <Filter>Archivos de recursos</Filter>
     </Text>
     <Text Include="Salida-CVRP .txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
+    <Text Include="_INPUT-CVRP\instancia_simple_CVRP_3.txt">
       <Filter>Archivos de recursos</Filter>
     </Text>
   </ItemGroup>

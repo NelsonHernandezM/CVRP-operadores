@@ -197,7 +197,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CombinationCrossover.cpp" />
     <ClCompile Include="CVRP-operadores.cpp" />
     <ClCompile Include="miBRBAX.cpp" />
     <ClCompile Include="LocalSearch.cpp" />
@@ -221,6 +220,7 @@
     <Text Include="_INPUT-CVRP\config_GA.txt" />
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP.txt" />
     <Text Include="_INPUT-CVRP\instancia_simple_CVRP_2.txt" />
+    <Text Include="_INPUT-CVRP\instancia_simple_CVRP_3.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

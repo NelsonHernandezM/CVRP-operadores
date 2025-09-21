@@ -17,11 +17,15 @@ using namespace std;
 #include <tools/operators/interval/PolynomialMutation.h>
 
 #include "miGenetico.h"
-
+#include "EdgeRecombinationCrossover.h"
 #include "miSwapMutation.h"
+#include "CycleCrossover.h"
+
+#include "AlternatingEdgesCrossover.h"
+
 #include "miScrambleMutation.h"
 #include "CombinationCrossover.h"
-
+#include "PartiallyMappedCrossover.h"
 #include <iostream>
 #include <tools/AlgorithmBuilder.h>
 
@@ -31,6 +35,7 @@ using namespace std;
 #include <tools/builders/RepairBuilder.h>
 
 #include "OxCrossover.h"
+#include "HeuristicCrossover.h"
 //#include "miCVRP_Repair.h"
 #include "LocalSearch.h"
 #include <chrono>
@@ -51,15 +56,15 @@ int main()
 
 	RandomNumber* rnd2 = RandomNumber::getInstance();
 
-
-
-	for (int i = 0; i < 1000; i++)
+	
+		//9089
+	for (int i = 0; i < 1; i++)
 	{
 		int semilla = rnd2->nextInt(10000000);
-		if (i > 0) { semilla = rnd2->nextInt(100000); }
+	/*	if (i > 0) { semilla = rnd2->nextInt(100000); }
 		else {
 			semilla = 9089;
-		}cout << "semilla: " << semilla << endl;
+		}*/cout << "semilla: " << semilla << endl;
 		std::mt19937 rng(semilla);  // Semilla fija
 		srand(semilla);  // Semilla fija
 		RandomNumber* rnd = RandomNumber::getInstance();
@@ -70,10 +75,17 @@ int main()
 		cout << i << endl;
 		ImprovementBuilder::add("LocalSearch", new LocalSearch());
 		CrossoverBuilder::add("miBRBAX", new miBRBAX());
-		CrossoverBuilder::add("CombinationCrossover", new CombinationCrossover());
-		CrossoverBuilder::add("OxCrossover", new OxCrossover());
+		//CrossoverBuilder::add("CombinationCrossover", new CombinationCrossover());
+		//CrossoverBuilder::add("OxCrossover", new OxCrossover());
+		//CrossoverBuilder::add("PartiallyMappedCrossover", new PartiallyMappedCrossover());
+		//CrossoverBuilder::add("EdgeRecombinationCrossover", new EdgeRecombinationCrossover());
+		//CrossoverBuilder::add("CycleCrossover", new CycleCrossover());
+		//CrossoverBuilder::add("AlternatingEdgesCrossover", new AlternatingEdgesCrossover());
+		//CrossoverBuilder::add("HeuristicCrossover", new HeuristicCrossover());
+		
 		MutationBuilder::add("miSwapMutation", new miSwapMutation());
 		MutationBuilder::add("miScrambleMutation", new miScrambleMutation());
+
 
 
 		AlgorithmBuilder::add("miGenetico", new miGenetico());
@@ -88,8 +100,9 @@ int main()
 		out << res;
 		out.close();
 
-		cout << *alg->getLastB() << endl;
+		
 		cout << alg->getSolutionSet() << endl;
+		cout << *alg->getLastB() << endl;
 
 		// Liberar memoria manualmente
 	   /* delete alg;*/

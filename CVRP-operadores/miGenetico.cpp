@@ -3,7 +3,8 @@
 #include <algorithm>
 #include "utility"
 #include <vector>
-
+#include <string>
+#include <sstream> // Necesario para std::stringstream
 
 
 miGenetico::miGenetico() :Algorithm(NULL) {
@@ -80,13 +81,25 @@ void imprimirSolucion(Solution sol) {
 		if (j < sol.getNumVariables() - 1) {
 			cout << ", ";
 		}
-
-
-
 	}
-	cout << " " << endl;
+	cout << " " <<endl;
 
 
+}
+
+// La función ahora devuelve un std::string
+std::string obtenerSolucionComoCadena(Solution sol) {
+	std::stringstream ss; // Se crea un stringstream para construir la cadena
+	ss << "[";
+	for (int j = 0; j < sol.getNumVariables(); j++) {
+		ss << sol.getVariableValue(j); // Se añade el valor al stream
+		if (j < sol.getNumVariables() - 1) {
+			ss << " "; // Se añade el separador al stream
+		}
+	}
+	// ss << " "; // Descomenta esta línea si necesitas un espacio al final
+	ss << "]\n"; // Cierra el corchete
+	return ss.str(); // Se convierte el contenido del stream a una cadena y se devuelve
 }
 
 
@@ -109,8 +122,27 @@ void miGenetico::execute() {
 	// Generar población inicial
 	for (int i = 0; i < pobSize; i++) {
 		nueva = this->problem_->generateRandomSolution();
-		this->problem_->evaluate(&nueva);
-		this->problem_->evaluateConstraints(&nueva);
+
+		//std::vector<int> digitos2 = { 28,12,80,68,29,24,54,55,25,4,26,53,0,92,37,98,100,91,16,86,44,38,14,42,43,15,57,2,58,0,27,69,1,70,30,20,66,32,90,63,10,62,88,31,0,6,96,99,59,93,85,61,17,45,84,5,60,89,0,52,7,82,48,19,11,64,49,36,47,46,8,83,18,0,73,74,22,41,23,67,39,56,75,72,21,40,0,13,87,97,95,94,0,50,33,81,51,9,71,65,35,34,78,79,3,77,76,-1 };
+		//std::vector<int> digitos = { 20, 24, 25, 27, 29, 30, 28, 26, 23, 22, 21, 0, 32, 33, 31, 35, 37, 38, 39, 36, 34, 0, 43, 42, 41, 40, 44, 45, 46, 48, 51, 50, 52, 49, 47, 0, 69, 68, 64, 61, 72, 80, 79, 77, 73, 70, 71, 76, 78, 81, 0, 99, 100, 97, 93, 92, 94, 95, 96, 98, 0, 65, 63, 74, 62, 66, 67, 0, 57, 55, 54, 53, 56, 58, 60, 59, 0, 75, 1, 2, 4, 6, 9, 11, 8, 7, 3, 5, 0, 10, 12, 14, 16, 15, 19, 18, 17, 13, 0, 90, 87, 86, 83, 82, 84, 85, 88, 89, 91, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+		//int prueba =nueva.getNumVariables();
+		//int prueba2 = digitos.size();
+
+		//for (size_t hh = 0; hh < nueva.getNumVariables(); hh++)
+		//{
+		//	nueva.setVariableValue(hh, digitos[hh]);
+		//}
+		//imprimirSolucion(nueva);
+
+		//this->problem_->evaluate(&nueva);
+		//this->problem_->evaluateConstraints(&nueva);
+
+		//cout << endl;
+		//cout << "numero de restricciones violadas" << endl;
+		//cout<<nueva.getNumberOfViolatedConstraints() << endl;
+		//cout << "COSTO TOTAL de restricciones violadas"<< endl;
+		//cout << nueva.getOverallConstraintViolation()<< endl;
 
 		this->pob->add(nueva);
 
@@ -137,11 +169,11 @@ void miGenetico::execute() {
 
 		for (int i = 0; i < this->N; i++) {
 			// Selección
-			parents.set(0, this->so->execute(*pob));
-			parents.set(1, this->so->execute(*pob));
+			//parents.set(0, this->so->execute(*pob));
+			//parents.set(1, this->so->execute(*pob));
 
 			// Cruza
-			this->co->execute(parents, children);
+			this->co->execute(*pob, children);
 
 			// Mutación
 			this->mo->execute(*pob, children.get(0));
@@ -202,8 +234,8 @@ void miGenetico::execute() {
 				}
 				else if (!maximization && children.get(h).getObjective(0) < best->get(0).getObjective(0) && children.get(h).getNumberOfViolatedConstraints() == 0) {
 					best->set(0, children.get(h));
-					std::wstring m2 = L"MEJORSO: \n";
-					OutputDebugStringW(m2.c_str());
+				/*	std::wstring m2 = L"MEJORSO: \n";
+					OutputDebugStringW(m2.c_str());*/
 					// <<< CAMBIO 2: Línea eliminada >>>
 				}
 			}
@@ -221,8 +253,8 @@ void miGenetico::execute() {
 					}
 					else if (!maximization && children.get(h).getObjective(0) < pob->get(k).getObjective(0) && children.get(h).getNumberOfViolatedConstraints() == 0) {
 						pob->set(k, children.get(h));
-						std::wstring m = L"MEJORO: \n";
-						OutputDebugStringW(m.c_str());
+						/*std::wstring m = L"MEJORO: \n";
+						OutputDebugStringW(m.c_str());*/
 						break;
 					}
 				}
@@ -242,20 +274,25 @@ void miGenetico::execute() {
 		}
 
 		// Si se alcanza el tope, rompe el bucle y termina.
-		if (generacionesSinMejora >= topeSinMejora) {
+		/*if (generacionesSinMejora >= topeSinMejora) {
 			break;
-		}
+		}*/
 
 		/*cout << best->get(0).getObjective(0) << endl;*/
 
-		if (best->get(0).getObjective(0).L == 829) {
+	/*	if (best->get(0).getObjective(0).L == 784 || best->get(0).getObjective(0).L < 784) {
 			cout << "Óptimo encontrado en generación " << generation << endl;
 			break;
-			}
+			}*/
 
-
- 
-		cout << generation << " best: " << best->get(0).getObjective(0) << " sin mejora: " << generacionesSinMejora << "        \r" << flush;
+		
+		//std::string ss = obtenerSolucionComoCadena(best->get(0));
+		//OutputDebugStringA(ss.c_str());
+		 
+		 
+		 
+		cout << generation << " best: " << best->get(0).getObjective(0) << " sin mejora: " << generacionesSinMejora    << "        \r" << flush;
+		
 		++generation;
 
 
