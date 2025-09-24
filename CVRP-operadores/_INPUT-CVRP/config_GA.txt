@@ -2,19 +2,16 @@
 #Algorithm miGenetico
 
 //parámetros
-#MAX_GENERATIONS 2000
-#N 250
+#MAX_GENERATIONS 300
+#N 500
  
  
 
 #Problem-Instance _INPUT-CVRP/instancia_simple_CVRP_3.txt
 
 
-#DEmutation CombinationMutation
-#CombinationMutation-probability 0.8
-
- 
-
+#DEmutation CombinationMutation	
+#CombinationMutation-probability 0.5
 
 #selection TournamentSelection
 #TournamentSelection-size 2

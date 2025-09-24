@@ -204,6 +204,7 @@
     <ClCompile Include="OxCrossover.cpp" />
     <ClCompile Include="miScrambleMutation.cpp" />
     <ClCompile Include="miSwapMutation.cpp" />
+    <ClCompile Include="Search2OPT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CombinationCrossover.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="OxCrossover.h" />
     <ClInclude Include="miScrambleMutation.h" />
     <ClInclude Include="miSwapMutation.h" />
+    <ClInclude Include="Search2OPT.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Salida-CVRP .txt" />

@@ -280,10 +280,10 @@ void miGenetico::execute() {
 
 		/*cout << best->get(0).getObjective(0) << endl;*/
 
-	/*	if (best->get(0).getObjective(0).L == 784 || best->get(0).getObjective(0).L < 784) {
+		if (best->get(0).getObjective(0).L == 815 || best->get(0).getObjective(0).L < 815) {
 			cout << "Óptimo encontrado en generación " << generation << endl;
 			break;
-			}*/
+			}
 
 		
 		//std::string ss = obtenerSolucionComoCadena(best->get(0));

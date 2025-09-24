@@ -13,7 +13,7 @@ using namespace std;
 #include <chrono>
 #include <iostream>
 #include <tools/operators/interval/SBXCrossover.h>
-
+#include "Search2OPT.h"
 #include <tools/operators/interval/PolynomialMutation.h>
 
 #include "miGenetico.h"
@@ -58,13 +58,13 @@ int main()
 
 	
 		//9089
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		int semilla = rnd2->nextInt(10000000);
-	/*	if (i > 0) { semilla = rnd2->nextInt(100000); }
+		if (i > 0) { semilla = rnd2->nextInt(100000); }
 		else {
-			semilla = 9089;
-		}*/cout << "semilla: " << semilla << endl;
+			semilla = 17548;
+		}cout << "semilla: " << semilla << endl;
 		std::mt19937 rng(semilla);  // Semilla fija
 		srand(semilla);  // Semilla fija
 		RandomNumber* rnd = RandomNumber::getInstance();
@@ -74,6 +74,8 @@ int main()
 
 		cout << i << endl;
 		ImprovementBuilder::add("LocalSearch", new LocalSearch());
+		ImprovementBuilder::add("Search2OPT", new Search2OPT());
+		
 		CrossoverBuilder::add("miBRBAX", new miBRBAX());
 		//CrossoverBuilder::add("CombinationCrossover", new CombinationCrossover());
 		//CrossoverBuilder::add("OxCrossover", new OxCrossover());

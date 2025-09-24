@@ -688,6 +688,8 @@ void decodificarRutas(Solution& sol, CVRP* problema, std::vector<std::vector<int
 	}
 }
 
+
+
 void reconstruirSolucionDesdeRutas(Solution& sol, const std::vector<std::vector<int>>& rutas) {
 	std::vector<int> valores_planos;
 	valores_planos.reserve(sol.getNumVariables());

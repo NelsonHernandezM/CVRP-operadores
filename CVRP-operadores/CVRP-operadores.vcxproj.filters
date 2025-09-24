@@ -36,6 +36,9 @@
     <ClCompile Include="miBRBAX.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="Search2OPT.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="miGenetico.h">
@@ -60,6 +63,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="CombinationCrossover.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="Search2OPT.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
